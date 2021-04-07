@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns = "http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name = 'viewport' content = 'width=device-width, initial-scale=1, user-scalable=0'>
+    <meta name='apple-mobile-web-app-capable' content='yes' />
+    <meta name='apple-mobile-web-app-status-bar-style' content='black' />
+	<link rel="stylesheet" href="./Musicality.css">
+	<!-- polyfill -->
+	<script src="./inc/shim/Base64.js" type="text/javascript"></script>
+	<script src="./inc/shim/Base64binary.js" type="text/javascript"></script>
+	<script src="./inc/shim/WebAudioAPI.js" type="text/javascript"></script>
+	<!-- midi.js package -->
+	<script src="./js/midi/audioDetect.js" type="text/javascript"></script>
+	<script src="./js/midi/gm.js" type="text/javascript"></script>
+	<script src="./js/midi/loader.js" type="text/javascript"></script>
+	<script src="./js/midi/plugin.audiotag.js" type="text/javascript"></script>
+	<script src="./js/midi/plugin.webaudio.js" type="text/javascript"></script>
+	<script src="./js/midi/plugin.webmidi.js" type="text/javascript"></script>
+	<!-- utils -->
+	<script src="./js/util/dom_request_xhr.js" type="text/javascript"></script>
+	<script src="./js/util/dom_request_script.js" type="text/javascript"></script>
+	<script src="./js/dropdown.js" type="text/javascript"></script>
+	<script src="./js/Musicality.js" type="text/javascript"></script>
+	<script src="./js/IntervalSing.js" type="text/javascript"></script>
+</head>
+
+<body>
+<div class="panel">
+	<table class="width100 menuTable">
+		<tr class="menuRow">
+			<td class="width25 menuLink"><a href="./IntervalRecognition.html">Recognise</a></td>
+			<td class="width25 menuLink"><a href="./IntervalSing.html">Sing</a></td>
+			<td class="width25 menuLink"><a href="./TranscribeNotes.html">Transcribe</a></td>
+			<td class="width25 menuLink"><a href="./Musicality.html">Help</a></td>
+		</tr>
+	</table>
+	<h1>Musicality: Interval Sing</h1>
+	<table class="width100">
+		<tr>
+			<td class="centeredButton width20"><button id="buttonNew" class="width90" >New</button></td>
+			<td class="width80">
+				<div class="dropdown">
+				  <span>Sing: </span><button id="singChoice" onclick="toggleDropdown('singChoiceDropdown')" class="dropbtn">Interval from note</button>
+				  <button onclick="toggleDropdown('singChoiceDropdown')" class="dropbtn">&#9662;</button>
+				  <div id="singChoiceDropdown" class="dropdown-content">
+					<a class="singChoice" href="#">Interval from note</a>
+					<a class="singChoice" href="#">Top note of chord</a>
+					<a class="singChoice" href="#">Bottom note of chord</a>
+					<a class="singChoice" href="#">Note above top of chord</a>
+					<a class="singChoice" href="#">Note below bottom of chord</a>
+				  </div>
+				</div>
+			</td>
+		</tr>
+		<tr>
+	</table>
+	<span id="instructions"></span>
+	<table class="width100">
+		</tr>
+		<tr>
+			<td class="width20 centeredButton"><button id="buttonAgain" class="width90 disabled" >Repeat</button></td>
+			<td id="answerText" class="width60 centeredText"></td>
+			<td class="width20 centeredButton"><button id="buttonAnswer" class="width90 disabled" >Answer</button></td>
+		</tr>
+	</table>
+	<hr>
+	<p>Octave range starting from:</p>
+	<table class="width100">
+		<tr>
+			<td class="width20"></td>
+			<td class="width20">
+				<div class="dropdown">
+				  <button id="rangeChoice" onclick="toggleDropdown('rangeChoiceDropdown')" class="dropbtn">C</button>
+				  <button onclick="toggleDropdown('rangeChoiceDropdown')" class="dropbtn">&#9662;</button>
+				  <div id="rangeChoiceDropdown" class="dropdown-content">
+					<a class="rangeChoice" href="#">C</a>
+					<a class="rangeChoice" href="#">C#</a>
+					<a class="rangeChoice" href="#">D</a>
+					<a class="rangeChoice" href="#">D#</a>
+					<a class="rangeChoice" href="#">E</a>
+					<a class="rangeChoice" href="#">F</a>
+					<a class="rangeChoice" href="#">F#</a>
+					<a class="rangeChoice" href="#">G</a>
+					<a class="rangeChoice" href="#">G#</a>
+					<a class="rangeChoice" href="#">A</a>
+					<a class="rangeChoice" href="#">A#</a>
+					<a class="rangeChoice" href="#">B</a>
+				  </div>
+				</div>
+			</td>
+			<td class="width20">
+				<div class="dropdown">
+				  <button id="octaveChoice" onclick="toggleDropdown('octaveChoiceDropdown')" class="dropbtn">3</button>
+				  <button onclick="toggleDropdown('octaveChoiceDropdown')" class="dropbtn">&#9662;</button>
+				  <div id="octaveChoiceDropdown" class="dropdown-content">
+					<a class="octaveChoice" href="#">2</a>
+					<a class="octaveChoice" href="#">3</a>
+					<a class="octaveChoice" href="#">4</a>
+				  </div>
+				</div>
+			</td>
+			<td class="width20"></td>
+			<td class="width20 centeredButton"><button id="buttonHear" class="width90" >Hear</button></td>
+		</tr>
+	</table>
+	<hr>
+	<p>Use intervals:</p>
+	<table>
+		<tr>
+			<td><label for="min2">Min 2nd</label></td><td><input type="checkbox" id="min2"></td>
+			<td><label for="maj2">Maj 2nd</label></td><td><input type="checkbox" id="maj2"></td>
+		</tr>
+		<tr>
+			<td><label for="min3">Min 3rd</label></td><td><input type="checkbox" id="min3"></td>
+			<td><label for="maj3">Maj 3rd</label></td><td><input type="checkbox" id="maj3"></td>
+		</tr>
+		<tr>
+			<td><label for="per4">Perf 4th</label></td><td><input type="checkbox" id="per4"></td>
+			<td><label for="per5">Perf 5th</label></td><td><input type="checkbox" id="per5"></td>
+		</tr>
+		<tr>
+			<td><label for="min6">Min 6th</label></td><td><input type="checkbox" id="min6"></td>
+			<td><label for="maj6">Maj 6th</label></td><td><input type="checkbox" id="maj6"></td>
+		</tr>
+		<tr>
+			<td><label for="min7">Min 7th</label></td><td><input type="checkbox" id="min7"></td>
+			<td><label for="maj7">Maj 7th</label></td><td><input type="checkbox" id="maj7"></td>
+		</tr>
+		<tr>
+			<td><label for="oct">Octave</label></td><td><input type="checkbox" id="oct"></td>
+			<td><label for="allIntervals">All</label></td><td><input type="checkbox" id="allIntervals"></td>
+		</tr>
+	</table>
+</div>
+</body>
+</html>

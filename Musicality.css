@@ -1,0 +1,144 @@
+body {
+    font-size: .85em;
+    font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
+    background-color: #fff;
+}
+
+label {
+	margin-left: 40px;
+}
+
+.width100 {
+    width: 100%;
+}
+.width95 {
+    width: 95%;
+}
+.width90 {
+    width: 90%;
+}
+.width75 {
+    width: 75%;
+}
+.width60 {
+    width: 60%;
+}
+.width50 {
+    width: 50%;
+}
+.width40 {
+    width: 40%;
+}
+.width30 {
+    width: 30%;
+}
+.width25 {
+    width: 25%;
+}
+.width20 {
+    width: 20%;
+}
+.width16 {
+    width: 16.7%;
+}
+.width12 {
+    width: 12%;
+}
+.width10 {
+    width: 10%;
+}
+
+.panel {
+	max-width: 12cm;
+	background-color: #EEEEEE;
+	padding:10px 0;
+}
+
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.centeredButton {
+    text-align:center;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.centeredText {
+    font-size: 1.25em;
+    text-align:center;
+}
+
+h1 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Dropdown Button */
+.dropbtn {
+  border: none;
+  cursor: pointer;
+}
+
+/* Dropdown button on hover & focus */
+.dropbtn:hover, .dropbtn:focus {
+  background-color: #DDDDDD;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  width: 90%;
+  display: inline-block;
+  border-style: solid;
+  border-width: thin;
+  border-radius: 3px;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  width: 80%;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 4px 4px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+
+.menuTable {
+  border-style: solid;
+  border-width: thin;
+  text-align: center;
+  border-collapse: collapse;
+}
+.menuLink {
+  border-style: solid;
+  border-width: thin;
+  text-align: center;
+  background-color: #DDDDDD;
+}
+.menuLink:hover {
+  background-color: #CCCCCC;
+}
+
+.menuLink a:link, .menuLinka:visited {
+  color: black;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
