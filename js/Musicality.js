@@ -155,6 +155,21 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, speed) {
 	return "Write down this sequence (after an initial " + Musicality_NoteNames[key % 12].Name1 + ")"
 }
 
+function Musicality_ShowSequenceToSing(length, key, mode) {
+	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
+	var lowNote = 48 + key;
+	var displayNotesUsingFlats = (mode == "Major" ? [3, 5, 8, 10] : [0, 2, 3, 5, 7, 8, 10]).includes(key);
+	var notes = Musicality_MakeNoteSequence(lowNote, mode, length)
+	Musicality_StartNotes = [lowNote];
+	Musicality_PlayNotes(Musicality_StartNotes);
+	Musicality_AnswerNotes = notes;
+	var noteDisplay = displayNotesUsingFlats ?
+		notes.map(n=>Musicality_NoteNames[n % 12].Name2 + (n >= 60 ? "'" : "")).join(" ") :
+		notes.map(n=>Musicality_NoteNames[n % 12].Name1 + (n >= 60 ? "'" : "")).join(" ");
+	Musicality_AnswerText = "";
+	return "Here is a " + Musicality_NoteNames[key % 12].Name1 + ". Sing this sequence: " + noteDisplay;
+}
+
 function Musicality_MakeNoteSequence(lowNote, mode, length) {
 	var notes = [];
 	var lastNote = 0;
