@@ -28,6 +28,7 @@ window.onload = function () {
 		document.getElementById("min3").checked = intArr.includes(3);
 		document.getElementById("maj3").checked = intArr.includes(4);
 		document.getElementById("per4").checked = intArr.includes(5);
+		document.getElementById("tri").checked = intArr.includes(6);
 		document.getElementById("per5").checked = intArr.includes(7);
 		document.getElementById("min6").checked = intArr.includes(8);
 		document.getElementById("maj6").checked = intArr.includes(9);
@@ -51,6 +52,7 @@ function onNew() {
 	if (document.getElementById("min3").checked) intervals = intervals.concat(3);
 	if (document.getElementById("maj3").checked) intervals = intervals.concat(4);
 	if (document.getElementById("per4").checked) intervals = intervals.concat(5);
+	if (document.getElementById("tri").checked) intervals = intervals.concat(6);
 	if (document.getElementById("per5").checked) intervals = intervals.concat(7);
 	if (document.getElementById("min6").checked) intervals = intervals.concat(8);
 	if (document.getElementById("maj6").checked) intervals = intervals.concat(9);
@@ -112,6 +114,7 @@ function handleAllIntervalsSelected(e) {
 	document.getElementById("min3").checked = checked;
 	document.getElementById("maj3").checked = checked;
 	document.getElementById("per4").checked = checked;
+	document.getElementById("tri").checked = checked;
 	document.getElementById("per5").checked = checked;
 	document.getElementById("min6").checked = checked;
 	document.getElementById("maj6").checked = checked;
