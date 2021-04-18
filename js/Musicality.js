@@ -1,6 +1,7 @@
 var Musicality_IntervalName = ["note", "semitone", "whole tone", "minor 3rd", "major 3rd", "perfect 4th", "tritone", "perfect 5th", "minor 6th", "major 6th", "minor 7th", "major 7th", "octave"];
 var Musicality_ShortIntervalName = ["Unison", "Min 2nd", "Maj 2nd", "Min 3rd", "Maj 3rd", "Perf 4th", "TriTone", "Perf 5th", "Min 6th", "Maj 6th", "Min 7th", "Maj 7th", "Octave"];
 var Musicality_ScaleDegrees = [0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7];
+var Musicality_NoteLetterNotes = [0, 0, 2, 4, 4, 5, 5, 7, 7, 9, 11, 11]; // C C D E E F F G G A B B
 var Musicality_MajorSequenceNotes = [0, 2, 4, 5, 7, 9, 11, 12]; // C D E F G A B C
 var Musicality_NatMinorSequenceNotes = [0, 2, 3, 5, 7, 8, 10, 12]; // C D E♭ F G A♭ B♭ C
 var Musicality_HarmMinorSequenceNotes = [0, 2, 3, 5, 7, 8, 11, 12]; // C D E♭ F G A♭ B C
@@ -49,7 +50,6 @@ var Musicality_SingChoiceChordBelow = 4;
 
 var Musicality_StartNotes = null;
 var Musicality_AnswerNotes = null;
-var Musicality_StartNoteDisplayDegree = null;
 var Musicality_AnswerText = null;
 
 function Musicality_Initialise() {
@@ -69,7 +69,7 @@ function Musicality_PickRandomIntervalToRecognise() {
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerText = 
 		Musicality_ShortIntervalName[targetNote-startNote]  + ": " + 
-		Musicality_NotePairText(startNote, targetNote, false);
+		Musicality_NotePairText(startNote, targetNote);
 }
 
 function Musicality_ReplayStartNotes() {
@@ -97,7 +97,7 @@ function Musicality_PickIntervalToSing(singChoice, intervals) {
 		var startNote = targetNote - interval;
 		Musicality_StartNotes = [startNote];
 		Musicality_PlayNotes(Musicality_StartNotes);
-		Musicality_AnswerText = Musicality_NotePairText(startNote, targetNote, false);
+		Musicality_AnswerText = Musicality_NotePairText(startNote, targetNote);
 		return "Sing a " + Musicality_IntervalName[Math.abs(interval)] + (interval > 0 ? " above ..." : " below ...");
 	} else {
 		var isAbove = singChoice == Musicality_SingChoiceChordTop || singChoice == Musicality_SingChoiceChordAbove;
@@ -108,19 +108,18 @@ function Musicality_PickIntervalToSing(singChoice, intervals) {
 							  Musicality_TriadIntervalsBelow[Math.floor(Math.random() * Musicality_TriadIntervalsBelow.length)];
 		Musicality_StartNotes = [triad.notes.map(i=>startNote+i)]
 		var intervalToRoot = triad.notes[triad.notes.length-1];
-		var chordType = triad.type;
+		var scaleDegreesToroot = intervalToRoot < 0 ? -Musicality_ScaleDegrees[-intervalToRoot] : Musicality_ScaleDegrees[intervalToRoot];
+		var chordRootNote = (startNote + 12 + intervalToRoot) % 12;
+		var chordName = MakeChordName(chordRootNote, triad.type);
 		Musicality_PlayNotes(Musicality_StartNotes);
 		if (interval == 0) {
-			//  This should ensure that the target note display is enharmonic with the chord
-			//var intervalText = Musicality_NotePairText(startNote + 12 - intervalToRoot, targetNote, true);
-			var intervalText = Musicality_NotePairText(startNote, targetNote, true);
-			var chordName = MakeChordName(startNote, intervalToRoot, chordType);
-			Musicality_AnswerText = "(" + chordName + ") : " + intervalText;
+			var targetNoteName = Musicality_NoteNameInTonality(targetNote, chordRootNote, -scaleDegreesToroot);
+			Musicality_AnswerText = "(" + chordName + ") : " + targetNoteName;
 			return isAbove ? "Sing the top note of ..." : "Sing the bottom note of ...";
 		} else {
-			var intervalText = Musicality_NotePairText(startNote, targetNote, false);
-			var chordName = MakeChordName(startNote, intervalToRoot, chordType);
-			Musicality_AnswerText = "(" + chordName + ") : " + intervalText;
+			var startNoteName = Musicality_NoteNameInTonality(startNote, chordRootNote, -scaleDegreesToroot);
+			var targetNoteName = Musicality_NoteNameInTonality(targetNote, chordRootNote, Musicality_ScaleDegrees[isAbove ? interval : 12 - interval]-scaleDegreesToroot);
+			Musicality_AnswerText = "(" + chordName + ") : " + startNoteName + " - " + targetNoteName;
 			var intervalName = Musicality_IntervalName[Math.abs(interval)]
 			return isAbove ? "Sing a " + intervalName + " above the top note of ..." : 
 							 "Sing a " + intervalName + " below the bottom note of ...";
@@ -238,12 +237,9 @@ function Musicality_MakeNoteSequence(lowNote, mode, length) {
 	return notes;	
 }
 
-function MakeChordName(startNote, intervalToRoot, chordType) {
-	var rootNote = (startNote + 12 + intervalToRoot) % 12;
-	var chordRootName = Musicality_NoteNames[rootNote];
-	var startNoteDegree = Musicality_StartNoteDisplayDegree;
-	if (startNoteDegree < chordRootName.Degree1) startNoteDegree += 7;
-	var chordName = (startNoteDegree-chordRootName.Degree1)%2 == 0 ? chordRootName.Name1 : chordRootName.Name2;
+function MakeChordName(chordRootNote, chordType) {
+	var chordRootName = Musicality_NoteNames[chordRootNote];
+	var chordName = chordRootName.Sharps <= 3 ? chordRootName.Name1 : chordRootName.Name2;
 	return chordName + chordType;
 }
 
@@ -270,13 +266,12 @@ function Musicality_PlayNotes(notes) {
 	}
 }
 
-function Musicality_NotePairText(startNote, targetNote, targetOnly) {
+function Musicality_NotePairText(startNote, targetNote) {
 	var nnStart = Musicality_NoteNames[startNote % 12];
 	var nnTarget = Musicality_NoteNames[targetNote % 12];
 	var interval = targetNote - startNote;
 	var nameStart = null;
 	var nameTarget = null;
-	Musicality_StartNoteDisplayDegree = nnStart.Degree1;
 	if (nnStart.Degree1 == nnStart.Degree2)	{
 		nameStart = nnStart.Name1;
 		nameTarget = nnTarget.Name1;
@@ -299,7 +294,6 @@ function Musicality_NotePairText(startNote, targetNote, targetOnly) {
 			 Musicality_ScaleDegrees[Math.abs(interval)] == (nnStart.Degree2 + 7 - nnTarget.Degree1) % 7 :
 			 Musicality_ScaleDegrees[Math.abs(interval)] == (nnTarget.Degree1 + 7 - nnStart.Degree2) % 7) {
 			nameStart = nnStart.Name2;
-			Musicality_StartNoteDisplayDegree = nnStart.Degree2;
 		}
 	}
 	else
@@ -307,7 +301,6 @@ function Musicality_NotePairText(startNote, targetNote, targetOnly) {
 		if (nnStart.Sharps + nnTarget.Sharps > 5) {
 			nameStart = nnStart.Name2;
 			nameTarget = nnTarget.Name2;
-			Musicality_StartNoteDisplayDegree = nnStart.Degree2;
 		}
 		else
 		{
@@ -315,5 +308,31 @@ function Musicality_NotePairText(startNote, targetNote, targetOnly) {
 			nameTarget = nnTarget.Name1;
 		}
 	}
-	return targetOnly ? nameTarget : nameStart + " - " + nameTarget;
+	return nameStart + " - " + nameTarget;
+}
+
+function Musicality_NoteNameInTonality(note, chordRootNote, scaleDegreesFromRoot)
+{
+	note = note %12;
+	var chordNoteLetterNote = Musicality_NoteLetterNotes[chordRootNote];
+	var tonalityScaleDegree = (Musicality_ScaleDegrees[chordNoteLetterNote] + scaleDegreesFromRoot + 7) % 7;
+	var noteLetter = Musicality_MajorSequenceNotes[tonalityScaleDegree];
+	var noteLetterText = Musicality_NoteNames[noteLetter].Name1.slice(0,1);
+	switch ((note-noteLetter+12) %12)
+	{
+		case 0:
+			return noteLetterText;
+		case 1:
+			return noteLetterText + "#";
+		case 2:
+			return noteLetterText + "##";
+		case 11:
+			return noteLetterText + "♭";
+		case 10:
+			return noteLetterText + "♭♭";
+		default:
+			return (note-noteLetter) > 0 ?
+				noteLetterText + "+" + (note-noteLetter).toString() :
+				noteLetterText + "-" + (noteLetter-note).toString();
+	}
 }
