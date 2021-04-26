@@ -12,7 +12,7 @@ window.onload = function () {
 	var rangeChoice = window.localStorage.getItem("rangeNote");
 	if (rangeChoice) {
 		document.querySelector('#rangeChoice').innerHTML = rangeChoice;
-		Musicality_RangeNote = Musicality_NoteNames.findIndex(n => n.Name1 == rangeChoice);
+		Musicality_RangeNote = Musicality_NoteNames.findIndex(n => n.Name1 == rangeChoice || n.Name2 == rangeChoice);
 	}
 	var octaveChoice = window.localStorage.getItem("rangeOctave");
 	if (octaveChoice) {
@@ -97,7 +97,7 @@ function handleSingChoiceSelected(e) {
 function handleRangeChoiceSelected(e) {
 	var choice = e.target.innerHTML;
 	document.querySelector('#rangeChoice').innerHTML = choice;
-	Musicality_RangeNote = Musicality_NoteNames.findIndex(n => n.Name1 == choice);
+	Musicality_RangeNote = Musicality_NoteNames.findIndex(n => n.Name1 == choice || n.Name2 == choice);
 	window.localStorage.setItem("rangeNote", choice);
 }
 

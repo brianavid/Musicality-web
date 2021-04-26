@@ -142,6 +142,7 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, speed) {
 	}
 	var lowNote = 48 + key;
 	var displayNotesUsingFlats = (mode == "Major" ? [3, 5, 8, 10] : [0, 2, 3, 5, 7, 8, 10]).includes(key);
+	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
 	var notes = Musicality_MakeNoteSequence(lowNote, mode, length)
 	Musicality_StartNotes = [[lowNote, lowNote+12], []].concat(notes);
 	Musicality_PlayNotes(Musicality_StartNotes);
@@ -151,13 +152,14 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, speed) {
 	} else {
 		Musicality_AnswerText = notes.map(n=>Musicality_NoteNames[n % 12].Name1 + (n >= 60 ? "'" : "")).join(" ");
 	}
-	return "Write down this sequence (after an initial " + Musicality_NoteNames[key % 12].Name1 + ")"
+	return "Write down this sequence (after an initial " + keyNoteName + ")"
 }
 
 function Musicality_ShowSequenceToSing(length, key, mode) {
 	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
 	var lowNote = 48 + key;
 	var displayNotesUsingFlats = (mode == "Major" ? [3, 5, 8, 10] : [0, 2, 3, 5, 7, 8, 10]).includes(key);
+	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
 	var notes = Musicality_MakeNoteSequence(lowNote, mode, length)
 	Musicality_StartNotes = [lowNote];
 	Musicality_PlayNotes(Musicality_StartNotes);
@@ -166,7 +168,7 @@ function Musicality_ShowSequenceToSing(length, key, mode) {
 		notes.map(n=>Musicality_NoteNames[n % 12].Name2 + (n >= 60 ? "'" : "")).join(" ") :
 		notes.map(n=>Musicality_NoteNames[n % 12].Name1 + (n >= 60 ? "'" : "")).join(" ");
 	Musicality_AnswerText = "";
-	return "Here is a " + Musicality_NoteNames[key % 12].Name1 + ". Sing this sequence: " + noteDisplay;
+	return "Here is a " + keyNoteName + ". Sing this sequence: " + noteDisplay;
 }
 
 function Musicality_MakeNoteSequence(lowNote, mode, length) {

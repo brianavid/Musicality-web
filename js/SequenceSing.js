@@ -17,7 +17,7 @@ function onNew() {
 	document.querySelector('#answerText').innerHTML  = "";
 	var length = document.querySelector('#seqLen').value;
 	var keyChoice = document.querySelector('#keyChoice').innerHTML;
-	var key = Musicality_NoteNames.findIndex(n => n.Name1 == keyChoice)
+	var key = Musicality_NoteNames.findIndex(n => n.Name1 == keyChoice || n.Name2 == keyChoice)
 	var mode = document.querySelector('#mode').innerHTML;
 	var instructions = Musicality_ShowSequenceToSing(+length, key, mode);
 	document.querySelector('#instructions').innerHTML  = instructions;
