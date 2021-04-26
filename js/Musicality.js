@@ -24,16 +24,16 @@ var Musicality_TriadIntervalsBelow = [
 ];
 var Musicality_NoteNames = [
 		{ Name1:"C", Degree1:0, Name2:"C", Degree2:0, Sharps:0 },
-		{ Name1:"C#", Degree1:0, Name2:"D♭", Degree2:1, Sharps:2 },
+		{ Name1:"C♯", Degree1:0, Name2:"D♭", Degree2:1, Sharps:2 },
 		{ Name1:"D", Degree1:1, Name2:"D", Degree2:1, Sharps:0 },
-		{ Name1:"D#", Degree1:1, Name2:"E♭", Degree2:2, Sharps:4 },
+		{ Name1:"D♯", Degree1:1, Name2:"E♭", Degree2:2, Sharps:4 },
 		{ Name1:"E", Degree1:2, Name2:"E", Degree2:2, Sharps:0 },
 		{ Name1:"F", Degree1:3, Name2:"F", Degree2:3, Sharps:0 },
-		{ Name1:"F#", Degree1:3, Name2:"G♭", Degree2:4, Sharps:1 },
+		{ Name1:"F♯", Degree1:3, Name2:"G♭", Degree2:4, Sharps:1 },
 		{ Name1:"G", Degree1:4, Name2:"G", Degree2:4, Sharps:0 },
-		{ Name1:"G#", Degree1:4, Name2:"A♭", Degree2:5, Sharps:3 },
+		{ Name1:"G♯", Degree1:4, Name2:"A♭", Degree2:5, Sharps:3 },
 		{ Name1:"A", Degree1:5, Name2:"A", Degree2:5, Sharps:0 },
-		{ Name1:"A#", Degree1:5, Name2:"B♭", Degree2:6, Sharps:5 },
+		{ Name1:"A♯", Degree1:5, Name2:"B♭", Degree2:6, Sharps:5 },
 		{ Name1:"B", Degree1:6, Name2:"B", Degree2:6, Sharps:0 },
 ];
 
@@ -69,7 +69,7 @@ function Musicality_PickRandomIntervalToRecognise() {
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerText = 
 		Musicality_ShortIntervalName[targetNote-startNote]  + ": " + 
-		Musicality_NotePairText(startNote, targetNote);
+		Musicality_NotePairText(startNote, targetNote, false);
 }
 
 function Musicality_ReplayStartNotes() {
@@ -97,7 +97,7 @@ function Musicality_PickIntervalToSing(singChoice, intervals) {
 		var startNote = targetNote - interval;
 		Musicality_StartNotes = [startNote];
 		Musicality_PlayNotes(Musicality_StartNotes);
-		Musicality_AnswerText = Musicality_NotePairText(startNote, targetNote);
+		Musicality_AnswerText = Musicality_NotePairText(startNote, targetNote, false);
 		return "Sing a " + Musicality_IntervalName[Math.abs(interval)] + (interval > 0 ? " above ..." : " below ...");
 	} else {
 		var isAbove = singChoice == Musicality_SingChoiceChordTop || singChoice == Musicality_SingChoiceChordAbove;
@@ -266,7 +266,7 @@ function Musicality_PlayNotes(notes) {
 	}
 }
 
-function Musicality_NotePairText(startNote, targetNote) {
+function Musicality_NotePairText(startNote, targetNote, targetOnly) {
 	var nnStart = Musicality_NoteNames[startNote % 12];
 	var nnTarget = Musicality_NoteNames[targetNote % 12];
 	var interval = targetNote - startNote;
@@ -308,7 +308,7 @@ function Musicality_NotePairText(startNote, targetNote) {
 			nameTarget = nnTarget.Name1;
 		}
 	}
-	return nameStart + " - " + nameTarget;
+	return targetOnly ? nameTarget : nameStart + " - " + nameTarget;
 }
 
 function Musicality_NoteNameInTonality(note, chordRootNote, scaleDegreesFromRoot)
@@ -323,9 +323,9 @@ function Musicality_NoteNameInTonality(note, chordRootNote, scaleDegreesFromRoot
 		case 0:
 			return noteLetterText;
 		case 1:
-			return noteLetterText + "#";
+			return noteLetterText + "♯";
 		case 2:
-			return noteLetterText + "##";
+			return noteLetterText + "♯♯";
 		case 11:
 			return noteLetterText + "♭";
 		case 10:
