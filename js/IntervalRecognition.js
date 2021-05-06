@@ -2,6 +2,7 @@ window.onload = function () {
 	Musicality_Initialise()
 	
 	document.querySelector('#buttonNew').addEventListener('click', onNew);
+	document.querySelectorAll('.recogniseChoice').forEach(option => option.addEventListener('click',handleRecogniseChoiceSelected));
 };
 
 function onNew() {
@@ -12,7 +13,11 @@ function onNew() {
 	document.querySelector('#buttonAgain').classList.remove("disabled");
 	document.querySelector('#buttonAnswer').classList.remove("disabled");
 	document.querySelector('#answerText').innerHTML  = "";
-	Musicality_PickRandomIntervalToRecognise();
+	if (document.querySelector('#recogniseChoice').innerHTML == "Mode and inversion of a chord") {
+		Musicality_PickRandomChordToRecognise();
+	} else {
+		Musicality_PickRandomIntervalToRecognise();
+	}
 }
 
 function onRepeat() {
@@ -24,3 +29,8 @@ function onAnswer() {
 	document.querySelector('#buttonNew').classList.remove("disabled");
 	document.querySelector('#answerText').innerHTML  = Musicality_PlayAnswerNotes();
 }
+function handleRecogniseChoiceSelected(e) {
+	var choice = e.target.innerHTML;
+	document.querySelector('#recogniseChoice').innerHTML = choice;
+}
+

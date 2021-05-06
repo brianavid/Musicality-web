@@ -15,12 +15,12 @@ var Musicality_TriadIntervalsAbove = [
 		{notes: [-5, -9, -0], type:"min"}
 ];
 var Musicality_TriadIntervalsBelow = [
-		{notes: [7, 3, 0], type:"min"},
-		{notes: [7, 4, 0], type:"maj"},
-		{notes: [3, 0, 8], type:"maj"},
-		{notes: [4, 0, 9], type:"min"},
-		{notes: [0, 8, 5], type:"min"},
-		{notes: [0, 9, 5], type:"maj"}
+		{notes: [7, 3, 0], type:"min", description:"Minor, root position"},
+		{notes: [7, 4, 0], type:"maj", description:"Major, root position"},
+		{notes: [3, 0, 8], type:"maj", description:"Major, first inversion"},
+		{notes: [4, 0, 9], type:"min", description:"Minor, first inversion"},
+		{notes: [0, 8, 5], type:"min", description:"Minor, second inversion"},
+		{notes: [0, 9, 5], type:"maj", description:"Major, second inversion"}
 ];
 var Musicality_NoteNames = [
 		{ Name1:"C", Degree1:0, Name2:"C", Degree2:0, Sharps:0 },
@@ -70,6 +70,21 @@ function Musicality_PickRandomIntervalToRecognise() {
 	Musicality_AnswerText = 
 		Musicality_ShortIntervalName[targetNote-startNote]  + ": " + 
 		Musicality_NotePairText(startNote, targetNote, false);
+}
+
+function Musicality_PickRandomChordToRecognise() {
+	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
+	var startNote = Math.floor(Math.random() * 12) + 54;
+	var triad = Musicality_TriadIntervalsBelow[Math.floor(Math.random() * Musicality_TriadIntervalsBelow.length)];
+	var intervalToRoot = triad.notes[triad.notes.length-1];
+	var chordRootNote = (startNote + 12 + intervalToRoot) % 12;
+	var chordName = MakeChordName(chordRootNote, "");
+	var chordNotes = triad.notes.slice();
+	chordNotes.sort((a,b) => a-b);
+	Musicality_AnswerNotes = chordNotes.map(i=>startNote+i);
+	Musicality_StartNotes = [Musicality_AnswerNotes];
+	Musicality_PlayNotes(Musicality_StartNotes);
+	Musicality_AnswerText = "[" + chordName + "] " + triad.description;
 }
 
 function Musicality_ReplayStartNotes() {
