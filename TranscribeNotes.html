@@ -44,12 +44,13 @@
 			<td class="width30"><span>Length: </span><input type="number" id="seqLen" min="3" max="15" value="8"></td>
 			<td class="width50">
 				<div class="dropdown">
-				  <span>Speed: </span><button id="speed" onclick="toggleDropdown('speedDropdown')" class="dropbtn">Medium</button>
-				  <button onclick="toggleDropdown('speedDropdown')" class="dropbtn">&#9662;</button>
-				  <div id="speedDropdown" class="dropdown-content">
-					<a class="speed" href="#">Fast</a>
-					<a class="speed" href="#">Medium</a>
-					<a class="speed" href="#">Slow</a>
+				  <span>Difficulty: </span><button id="difficulty" onclick="toggleDropdown('difficultyDropdown')" class="dropbtn">Sequential</button>
+				  <button onclick="toggleDropdown('difficultyDropdown')" class="dropbtn">&#9662;</button>
+				  <div id="difficultyDropdown" class="dropdown-content">
+					<a class="difficulty" href="#">Sequential</a>
+					<a class="difficulty" href="#">Triad Leaps</a>
+					<a class="difficulty" href="#">Random Leaps</a>
+					<a class="difficulty" href="#">Modal Borrowing</a>
 				  </div>
 				</div>
 			</td>
@@ -85,6 +86,28 @@
 					<a class="mode" href="#">Natural Minor</a>
 					<a class="mode" href="#">Harmonic Minor</a>
 					<a class="mode" href="#">Melodic Minor</a>
+					<a class="mode" href="#">Ionian</a>
+					<a class="mode" href="#">Dorian</a>
+					<a class="mode" href="#">Phrygian</a>
+					<a class="mode" href="#">Lydian</a>
+					<a class="mode" href="#">Mixolydian</a>
+					<a class="mode" href="#">Aeolian</a>
+					<a class="mode" href="#">Locrian</a>
+				  </div>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td class="width20"></td>
+			<td class="width30"></td>
+			<td class="width50">
+				<div class="dropdown">
+				  <span>Speed: </span><button id="speed" onclick="toggleDropdown('speedDropdown')" class="dropbtn">Medium</button>
+				  <button onclick="toggleDropdown('speedDropdown')" class="dropbtn">&#9662;</button>
+				  <div id="speedDropdown" class="dropdown-content">
+					<a class="speed" href="#">Fast</a>
+					<a class="speed" href="#">Medium</a>
+					<a class="speed" href="#">Slow</a>
 				  </div>
 				</div>
 			</td>

@@ -6,6 +6,21 @@ var Musicality_MajorSequenceNotes = [0, 2, 4, 5, 7, 9, 11, 12]; // C D E F G A B
 var Musicality_NatMinorSequenceNotes = [0, 2, 3, 5, 7, 8, 10, 12]; // C D E♭ F G A♭ B♭ C
 var Musicality_HarmMinorSequenceNotes = [0, 2, 3, 5, 7, 8, 11, 12]; // C D E♭ F G A♭ B C
 var Musicality_MelMinorSequenceNotes = [0, 2, 3, 5, 7, 9, 11, 12]; // C D E♭ F G A B C
+var Musicality_IonianSequenceNotes = [0, 2, 4, 5, 7, 9, 11, 12]; // C D E F G A B C
+var Musicality_DorianSequenceNotes = [0, 2, 3, 5, 7, 9, 10, 12]; // C D E♭ F G A B♭ C
+var Musicality_PhrygianSequenceNotes = [0, 1, 3, 5, 7, 8, 10, 12]; // C D♭ E♭ F G A♭ B♭ C
+var Musicality_LydianSequenceNotes = [0, 2, 4, 6, 7, 9, 11, 12]; // C D E F♯ G A B C
+var Musicality_MixolydianSequenceNotes = [0, 2, 4, 5, 7, 9, 10, 12]; // C D E F G A B♭ C
+var Musicality_AeolianSequenceNotes = [0, 2, 3, 5, 7, 8, 10, 12]; // C D E♭ F G A♭ B♭ C
+var Musicality_LocrianSequenceNotes = [0, 1, 3, 5, 6, 8, 10, 12]; // C D♭ E♭ F G♭ A♭ B♭ C
+var Musicality_BorrowableScales = [
+		Musicality_IonianSequenceNotes,
+		Musicality_DorianSequenceNotes,
+		Musicality_PhrygianSequenceNotes,
+		Musicality_LydianSequenceNotes,
+		Musicality_MixolydianSequenceNotes,
+		Musicality_AeolianSequenceNotes,
+];
 var Musicality_TriadIntervalsAbove = [
 		{notes: [-0, -3, -7], type:"maj"},
 		{notes: [-0, -4, -7], type:"min"},
@@ -55,8 +70,10 @@ var Musicality_AnswerText = null;
 function Musicality_Initialise() {
 	MIDI.loadPlugin({
 		soundfontUrl: "./soundfont/",
-		instrument: "acoustic_grand_piano"
-	});
+		instrument: "acoustic_grand_piano",
+		callback: function() {
+		Musicality_PlayNotes([48, 60])
+		}});
 }
 
 function Musicality_PickRandomIntervalToRecognise() {
@@ -142,7 +159,7 @@ function Musicality_PickIntervalToSing(singChoice, intervals) {
 	}
 }
 
-function Musicality_PlaySequenceToTranscribe(length, key, mode, speed) {
+function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, speed) {
 	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
 	switch (speed) {
 		case "Fast":
@@ -158,7 +175,7 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, speed) {
 	var lowNote = 48 + key;
 	var displayNotesUsingFlats = (mode == "Major" ? [3, 5, 8, 10] : [0, 2, 3, 5, 7, 8, 10]).includes(key);
 	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
-	var notes = Musicality_MakeNoteSequence(lowNote, mode, length)
+	var notes = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length)
 	Musicality_StartNotes = [[lowNote, lowNote+12], []].concat(notes);
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerNotes = [];
@@ -170,12 +187,12 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, speed) {
 	return "Write down this sequence (after an initial " + keyNoteName + ")"
 }
 
-function Musicality_ShowSequenceToSing(length, key, mode) {
+function Musicality_ShowSequenceToSing(length, key, mode, difficulty) {
 	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
 	var lowNote = 48 + key;
 	var displayNotesUsingFlats = (mode == "Major" ? [3, 5, 8, 10] : [0, 2, 3, 5, 7, 8, 10]).includes(key);
 	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
-	var notes = Musicality_MakeNoteSequence(lowNote, mode, length)
+	var notes = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length)
 	Musicality_StartNotes = [lowNote];
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerNotes = notes;
@@ -186,11 +203,10 @@ function Musicality_ShowSequenceToSing(length, key, mode) {
 	return "Here is a " + keyNoteName + ". Sing this sequence: " + noteDisplay;
 }
 
-function Musicality_MakeNoteSequence(lowNote, mode, length) {
-	var notes = [];
-	var lastNote = 0;
+function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 	var sequenceNotesUp = null;
 	var sequenceNotesDown = null;
+	var sequenceBorrowed = null;
 	switch (mode) {
 		case "Major":
 			sequenceNotesUp = Musicality_MajorSequenceNotes.map(n=> n+lowNote);
@@ -208,47 +224,129 @@ function Musicality_MakeNoteSequence(lowNote, mode, length) {
 			sequenceNotesUp = Musicality_MelMinorSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = Musicality_NatMinorSequenceNotes.map(n=> n+lowNote);
 			break;
+		case "Ionian":
+			sequenceNotesUp = Musicality_IonianSequenceNotes.map(n=> n+lowNote);
+			sequenceNotesDown = sequenceNotesUp;
+			break;
+		case "Dorian":
+			sequenceNotesUp = Musicality_DorianSequenceNotes.map(n=> n+lowNote);
+			sequenceNotesDown = sequenceNotesUp;
+			break;
+		case "Phrygian":
+			sequenceNotesUp = Musicality_PhrygianSequenceNotes.map(n=> n+lowNote);
+			sequenceNotesDown = sequenceNotesUp;
+			break;
+		case "Lydian":
+			sequenceNotesUp = Musicality_LydianSequenceNotes.map(n=> n+lowNote);
+			sequenceNotesDown = sequenceNotesUp;
+			break;
+		case "Mixolydian":
+			sequenceNotesUp = Musicality_MixolydianSequenceNotes.map(n=> n+lowNote);
+			sequenceNotesDown = sequenceNotesUp;
+			break;
+		case "Aeolian":
+			sequenceNotesUp = Musicality_AeolianSequenceNotes.map(n=> n+lowNote);
+			sequenceNotesDown = sequenceNotesUp;
+			break;
+		case "Locrian":
+			sequenceNotesUp = Musicality_LocrianSequenceNotes.map(n=> n+lowNote);
+			sequenceNotesDown = sequenceNotesUp;
+			break;
 	}
-	var lastInSequence = Math.floor(Math.random() * sequenceNotesUp.length);
-	var goingUp = lastInSequence < sequenceNotesUp.length / 2;
+	var notes = [];
+	var lastInSequence = 0;
+	var increment = 1;
+	var difficultyLevel = 0;
 
+	switch (difficulty) {
+		case "Sequential":
+			difficultyLevel = 0;
+			break;
+		case "Triad Leaps":
+			difficultyLevel = 1;
+			break;
+		case "Random Leaps":
+			difficultyLevel = 2;
+			break;
+		case "Modal Borrowing":
+			difficultyLevel = 2;
+			sequenceBorrowed = Musicality_BorrowableScales[Math.floor(Math.random() * Musicality_BorrowableScales.length)].map(n=> n+lowNote);
+			break;
+	}
 	while (notes.length < length) {
-		var nextNoteInSequence = 0;
+		var nextNoteInSequence = -1;
 		var nextNote = 0;
-		if (Math.random() < 0.25) goingUp = !goingUp;
-		switch (Math.floor(Math.random() * 10)) {
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-				nextNoteInSequence = goingUp ? lastInSequence + 1 : lastInSequence - 1;
-				break;
-			case 4:
-			case 5:
-			case 6:
-				nextNoteInSequence = goingUp ? lastInSequence + 2 : lastInSequence - 2;
-				break;
-			case 7:
-			case 8:
-				nextNoteInSequence = goingUp ? lastInSequence + 3 : lastInSequence - 3;
-				break;
-			default:
-				nextNoteInSequence = Math.floor(Math.random() * sequenceNotesUp.length);
-				break;
+		if (notes.length == 0) {
+			nextNoteInSequence = Math.random() < 0.5 ? 0 : Math.random() < 0.5 ? 2 : 4;
+			increment = Math.random() * sequenceNotesUp.length >= nextNoteInSequence ? 1 : -1;
 		}
-		
-		if (nextNoteInSequence < 0 || nextNoteInSequence >= sequenceNotesUp.length) {
-			nextNoteInSequence = Math.floor(Math.random() * sequenceNotesUp.length);
+		else {
+			if (lastInSequence <= 0) increment = 1;
+			if (lastInSequence >= sequenceNotesUp.length-1) increment = -1;
+			if (difficultyLevel != 0 && Math.random() < 0.3) {
+				if (difficultyLevel >= 2) {
+					switch (Math.floor(Math.random() * 10))
+					{
+						case 0:
+						case 1:
+						case 2:
+						case 3:
+							nextNoteInSequence = lastInSequence + increment * 2;
+							if (nextNoteInSequence < 0 || nextNoteInSequence >= sequenceNotesUp.length) {
+								increment = -increment;
+								nextNoteInSequence = lastInSequence + increment * 2;
+							}
+							break;
+						case 4:
+						case 5:
+						case 6:
+							nextNoteInSequence = lastInSequence + increment * 3;
+							if (nextNoteInSequence < 0 || nextNoteInSequence >= sequenceNotesUp.length) {
+								increment = -increment;
+								nextNoteInSequence = lastInSequence + increment * 3;
+							}
+							break;
+						case 7:
+						case 8:
+							nextNoteInSequence = lastInSequence + increment * 4;
+							if (nextNoteInSequence < 0 || nextNoteInSequence >= sequenceNotesUp.length) {
+								increment = -increment;
+								nextNoteInSequence = lastInSequence + increment * 4;
+							}
+							break;
+						default:
+							nextNoteInSequence = lastInSequence + increment * 5;
+							if (nextNoteInSequence < 0 || nextNoteInSequence >= sequenceNotesUp.length) {
+								increment = -increment;
+								nextNoteInSequence = lastInSequence + increment * 5;
+							}
+							break;
+					}
+					increment = -increment;
+				} else if (lastInSequence == 0 || lastInSequence == 2 || lastInSequence == 4 || lastInSequence == 7) {
+					nextNoteInSequence = [0,2,4,7][Math.floor(Math.random() * 4)];
+					increment = nextNoteInSequence < lastInSequence ? 1 : -1;
+				}
+			} 
+			if (nextNoteInSequence < 0) {
+				if (Math.random() < 0.1) {
+					nextNoteInSequence = lastInSequence;
+				} else {
+					nextNoteInSequence = lastInSequence + increment;
+					if (Math.random() < 0.2) increment = -increment;
+				}
+			}
 		}
 
-		goingUp = nextNoteInSequence > lastInSequence;
+		if (sequenceBorrowed != null && notes.length * 2 >= length && notes.length * 4 < length*3) {
+			nextNote = sequenceBorrowed[nextNoteInSequence];
+		} else {
+			nextNote = nextNoteInSequence >= lastInSequence ? 
+				sequenceNotesUp[nextNoteInSequence] : sequenceNotesDown[nextNoteInSequence];
+		}
+
+		notes.push(nextNote);
 		lastInSequence = nextNoteInSequence;
-		nextNote = goingUp ? sequenceNotesUp[nextNoteInSequence] : sequenceNotesDown[nextNoteInSequence];
-
-		if (nextNote != lastNote) {
-			notes.push(nextNote);
-			lastNote = nextNote;
-		}
 	}
 	
 	return notes;	

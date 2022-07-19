@@ -5,6 +5,12 @@ window.onload = function () {
 
 	document.querySelectorAll('.keyChoice').forEach(option => option.addEventListener('click',handleKeyChoiceSelected));
 	document.querySelectorAll('.mode').forEach(option => option.addEventListener('click',handleModeSelected));
+	document.querySelectorAll('.difficulty').forEach(option => option.addEventListener('click',handleDifficultySelected));
+	
+	document.querySelector('#seqLen').value = window.localStorage.getItem("length");
+	document.querySelector('#keyChoice').innerHTML = window.localStorage.getItem("keyChoice");
+	document.querySelector('#mode').innerHTML = window.localStorage.getItem("mode");
+	document.querySelector('#difficulty').innerHTML = window.localStorage.getItem("difficulty");
 };
 
 function onNew() {
@@ -19,8 +25,14 @@ function onNew() {
 	var keyChoice = document.querySelector('#keyChoice').innerHTML;
 	var key = Musicality_NoteNames.findIndex(n => n.Name1 == keyChoice || n.Name2 == keyChoice)
 	var mode = document.querySelector('#mode').innerHTML;
-	var instructions = Musicality_ShowSequenceToSing(+length, key, mode);
+	var difficulty = document.querySelector('#difficulty').innerHTML;
+	var instructions = Musicality_ShowSequenceToSing(+length, key, mode, difficulty);
 	document.querySelector('#instructions').innerHTML  = instructions;
+	
+	window.localStorage.setItem("length", length);
+	window.localStorage.setItem("keyChoice", keyChoice);
+	window.localStorage.setItem("mode", mode);
+	window.localStorage.setItem("difficulty", difficulty);
 }
 
 function onRepeat() {
@@ -41,5 +53,10 @@ function handleKeyChoiceSelected(e) {
 function handleModeSelected(e) {
 	var choice = e.target.innerHTML;
 	document.querySelector('#mode').innerHTML = choice;
+}
+
+function handleDifficultySelected(e) {
+	var choice = e.target.innerHTML;
+	document.querySelector('#difficulty').innerHTML = choice;
 }
 
