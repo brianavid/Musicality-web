@@ -175,15 +175,12 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, spee
 	var lowNote = 48 + key;
 	var displayNotesUsingFlats = (mode == "Major" ? [3, 5, 8, 10] : [0, 2, 3, 5, 7, 8, 10]).includes(key);
 	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
-	var notes = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length)
+	var [notes, scaleDegrees] = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length);
+	var noteNames = Musicality_NoteNamesInTonality(notes, key, scaleDegrees);
 	Musicality_StartNotes = [[lowNote, lowNote+12], []].concat(notes);
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerNotes = [];
-	if (displayNotesUsingFlats) {
-		Musicality_AnswerText = notes.map(n=>Musicality_NoteNames[n % 12].Name2 + (n >= 60 ? "'" : "")).join(" ");
-	} else {
-		Musicality_AnswerText = notes.map(n=>Musicality_NoteNames[n % 12].Name1 + (n >= 60 ? "'" : "")).join(" ");
-	}
+	Musicality_AnswerText = noteNames.join(" ");
 	return "Write down this sequence (after an initial " + keyNoteName + ")"
 }
 
@@ -192,15 +189,14 @@ function Musicality_ShowSequenceToSing(length, key, mode, difficulty) {
 	var lowNote = 48 + key;
 	var displayNotesUsingFlats = (mode == "Major" ? [3, 5, 8, 10] : [0, 2, 3, 5, 7, 8, 10]).includes(key);
 	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
-	var notes = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length)
+	var [notes, scaleDegrees] = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length);
+	var noteNames = Musicality_NoteNamesInTonality(notes, key, scaleDegrees);
 	Musicality_StartNotes = [lowNote];
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerNotes = notes;
-	var noteDisplay = displayNotesUsingFlats ?
-		notes.map(n=>Musicality_NoteNames[n % 12].Name2 + (n >= 60 ? "'" : "")).join(" ") :
-		notes.map(n=>Musicality_NoteNames[n % 12].Name1 + (n >= 60 ? "'" : "")).join(" ");
+	var noteDisplay = noteNames.join(" ");
 	Musicality_AnswerText = "";
-	return "Here is a " + keyNoteName + ". Sing this sequence: " + noteDisplay;
+	return "Here is a " + keyNoteName + ". Sing this sequence:<br>" + noteDisplay;
 }
 
 function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
@@ -254,7 +250,8 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 			break;
 	}
 	var notes = [];
-	var lastInSequence = 0;
+	var scaleDegrees = [];
+	var lastScaleDegree = 0;
 	var increment = 1;
 	var difficultyLevel = 0;
 
@@ -274,15 +271,15 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 			break;
 	}
 	while (notes.length < length) {
-		var nextNoteInSequence = -1;
+		var nextScaleDegree = -1;
 		var nextNote = 0;
 		if (notes.length == 0) {
-			nextNoteInSequence = Math.random() < 0.5 ? 0 : Math.random() < 0.5 ? 2 : 4;
-			increment = Math.random() * sequenceNotesUp.length >= nextNoteInSequence ? 1 : -1;
+			nextScaleDegree = Math.random() < 0.5 ? 0 : Math.random() < 0.5 ? 2 : 4;
+			increment = Math.random() * sequenceNotesUp.length >= nextScaleDegree ? 1 : -1;
 		}
 		else {
-			if (lastInSequence <= 0) increment = 1;
-			if (lastInSequence >= sequenceNotesUp.length-1) increment = -1;
+			if (lastScaleDegree <= 0) increment = 1;
+			if (lastScaleDegree >= sequenceNotesUp.length-1) increment = -1;
 			if (difficultyLevel != 0 && Math.random() < 0.3) {
 				if (difficultyLevel >= 2) {
 					switch (Math.floor(Math.random() * 10))
@@ -291,65 +288,66 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 						case 1:
 						case 2:
 						case 3:
-							nextNoteInSequence = lastInSequence + increment * 2;
-							if (nextNoteInSequence < 0 || nextNoteInSequence >= sequenceNotesUp.length) {
+							nextScaleDegree = lastScaleDegree + increment * 2;
+							if (nextScaleDegree < 0 || nextScaleDegree >= sequenceNotesUp.length) {
 								increment = -increment;
-								nextNoteInSequence = lastInSequence + increment * 2;
+								nextScaleDegree = lastScaleDegree + increment * 2;
 							}
 							break;
 						case 4:
 						case 5:
 						case 6:
-							nextNoteInSequence = lastInSequence + increment * 3;
-							if (nextNoteInSequence < 0 || nextNoteInSequence >= sequenceNotesUp.length) {
+							nextScaleDegree = lastScaleDegree + increment * 3;
+							if (nextScaleDegree < 0 || nextScaleDegree >= sequenceNotesUp.length) {
 								increment = -increment;
-								nextNoteInSequence = lastInSequence + increment * 3;
+								nextScaleDegree = lastScaleDegree + increment * 3;
 							}
 							break;
 						case 7:
 						case 8:
-							nextNoteInSequence = lastInSequence + increment * 4;
-							if (nextNoteInSequence < 0 || nextNoteInSequence >= sequenceNotesUp.length) {
+							nextScaleDegree = lastScaleDegree + increment * 4;
+							if (nextScaleDegree < 0 || nextScaleDegree >= sequenceNotesUp.length) {
 								increment = -increment;
-								nextNoteInSequence = lastInSequence + increment * 4;
+								nextScaleDegree = lastScaleDegree + increment * 4;
 							}
 							break;
 						default:
-							nextNoteInSequence = lastInSequence + increment * 5;
-							if (nextNoteInSequence < 0 || nextNoteInSequence >= sequenceNotesUp.length) {
+							nextScaleDegree = lastScaleDegree + increment * 5;
+							if (nextScaleDegree < 0 || nextScaleDegree >= sequenceNotesUp.length) {
 								increment = -increment;
-								nextNoteInSequence = lastInSequence + increment * 5;
+								nextScaleDegree = lastScaleDegree + increment * 5;
 							}
 							break;
 					}
 					increment = -increment;
-				} else if (lastInSequence == 0 || lastInSequence == 2 || lastInSequence == 4 || lastInSequence == 7) {
-					nextNoteInSequence = [0,2,4,7][Math.floor(Math.random() * 4)];
-					increment = nextNoteInSequence < lastInSequence ? 1 : -1;
+				} else if (lastScaleDegree == 0 || lastScaleDegree == 2 || lastScaleDegree == 4 || lastScaleDegree == 7) {
+					nextScaleDegree = [0,2,4,7][Math.floor(Math.random() * 4)];
+					increment = nextScaleDegree < lastScaleDegree ? 1 : -1;
 				}
 			} 
-			if (nextNoteInSequence < 0) {
+			if (nextScaleDegree < 0 || nextScaleDegree >= sequenceNotesUp.length) {
 				if (Math.random() < 0.1) {
-					nextNoteInSequence = lastInSequence;
+					nextScaleDegree = lastScaleDegree;
 				} else {
-					nextNoteInSequence = lastInSequence + increment;
+					nextScaleDegree = lastScaleDegree + increment;
 					if (Math.random() < 0.2) increment = -increment;
 				}
 			}
 		}
 
 		if (sequenceBorrowed != null && notes.length * 2 >= length && notes.length * 4 < length*3) {
-			nextNote = sequenceBorrowed[nextNoteInSequence];
+			nextNote = sequenceBorrowed[nextScaleDegree];
 		} else {
-			nextNote = nextNoteInSequence >= lastInSequence ? 
-				sequenceNotesUp[nextNoteInSequence] : sequenceNotesDown[nextNoteInSequence];
+			nextNote = nextScaleDegree >= lastScaleDegree ? 
+				sequenceNotesUp[nextScaleDegree] : sequenceNotesDown[nextScaleDegree];
 		}
 
 		notes.push(nextNote);
-		lastInSequence = nextNoteInSequence;
+		scaleDegrees.push(nextScaleDegree);
+		lastScaleDegree = nextScaleDegree;
 	}
 	
-	return notes;	
+	return [notes, scaleDegrees];	
 }
 
 function MakeChordName(chordRootNote, chordType) {
@@ -426,11 +424,11 @@ function Musicality_NotePairText(startNote, targetNote, targetOnly) {
 	return targetOnly ? nameTarget : nameStart + " - " + nameTarget;
 }
 
-function Musicality_NoteNameInTonality(note, chordRootNote, scaleDegreesFromRoot)
+function Musicality_NoteNameInTonality(note, rootNote, scaleDegree)
 {
 	note = note %12;
-	var chordNoteLetterNote = Musicality_NoteLetterNotes[chordRootNote];
-	var tonalityScaleDegree = (Musicality_ScaleDegrees[chordNoteLetterNote] + scaleDegreesFromRoot + 7) % 7;
+	var noteLetterNote = Musicality_NoteLetterNotes[rootNote];
+	var tonalityScaleDegree = (Musicality_ScaleDegrees[noteLetterNote] + scaleDegree + 7) % 7;
 	var noteLetter = Musicality_MajorSequenceNotes[tonalityScaleDegree];
 	var noteLetterText = Musicality_NoteNames[noteLetter].Name1.slice(0,1);
 	switch ((note-noteLetter+12) %12)
@@ -450,4 +448,16 @@ function Musicality_NoteNameInTonality(note, chordRootNote, scaleDegreesFromRoot
 				noteLetterText + "+" + (note-noteLetter).toString() :
 				noteLetterText + "-" + (noteLetter-note).toString();
 	}
+}
+
+function Musicality_NoteNamesInTonality(notes, rootNote, scaleDegrees)
+{
+	var noteNames = [];
+	for (let i = 0; i < notes.length; i++) {
+		var noteName = Musicality_NoteNameInTonality(notes[i], rootNote, scaleDegrees[i]) + 
+			(notes[i] >= 60 ? "'" : "");
+		noteNames.push(noteName);
+	}
+	
+	return noteNames;
 }
