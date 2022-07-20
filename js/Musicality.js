@@ -145,12 +145,12 @@ function Musicality_PickIntervalToSing(singChoice, intervals) {
 		var chordName = MakeChordName(chordRootNote, triad.type);
 		Musicality_PlayNotes(Musicality_StartNotes);
 		if (interval == 0) {
-			var targetNoteName = Musicality_NoteNameInTonality(targetNote, chordRootNote, -scaleDegreesToroot);
+			var targetNoteName = Musicality_NoteNameInTonality(targetNote, chordRootNote, -scaleDegreesToroot, false);
 			Musicality_AnswerText = "(" + chordName + ") : " + targetNoteName;
 			return isAbove ? "Sing the top note of ..." : "Sing the bottom note of ...";
 		} else {
-			var startNoteName = Musicality_NoteNameInTonality(startNote, chordRootNote, -scaleDegreesToroot);
-			var targetNoteName = Musicality_NoteNameInTonality(targetNote, chordRootNote, Musicality_ScaleDegrees[isAbove ? interval : 12 - interval]-scaleDegreesToroot);
+			var startNoteName = Musicality_NoteNameInTonality(startNote, chordRootNote, -scaleDegreesToroot, false);
+			var targetNoteName = Musicality_NoteNameInTonality(targetNote, chordRootNote, Musicality_ScaleDegrees[isAbove ? interval : 12 - interval]-scaleDegreesToroot, false);
 			Musicality_AnswerText = "(" + chordName + ") : " + startNoteName + " - " + targetNoteName;
 			var intervalName = Musicality_IntervalName[Math.abs(interval)]
 			return isAbove ? "Sing a " + intervalName + " above the top note of ..." : 
@@ -177,11 +177,12 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, spee
 	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
 	var [notes, scaleDegrees] = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length);
 	var noteNames = Musicality_NoteNamesInTonality(notes, key, scaleDegrees);
+	Musicality_RenderNotesAsStave(notes, key, scaleDegrees, "renderedStave");
 	Musicality_StartNotes = [[lowNote, lowNote+12], []].concat(notes);
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerNotes = [];
 	Musicality_AnswerText = noteNames.join(" ");
-	return "Write down this sequence (after an initial " + keyNoteName + ")"
+	return "Write down this sequence (after an initial " + keyNoteName + ")";
 }
 
 function Musicality_ShowSequenceToSing(length, key, mode, difficulty) {
@@ -191,6 +192,7 @@ function Musicality_ShowSequenceToSing(length, key, mode, difficulty) {
 	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
 	var [notes, scaleDegrees] = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length);
 	var noteNames = Musicality_NoteNamesInTonality(notes, key, scaleDegrees);
+	Musicality_RenderNotesAsStave(notes, key, scaleDegrees, "renderedStave");
 	Musicality_StartNotes = [lowNote];
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerNotes = notes;
@@ -424,29 +426,32 @@ function Musicality_NotePairText(startNote, targetNote, targetOnly) {
 	return targetOnly ? nameTarget : nameStart + " - " + nameTarget;
 }
 
-function Musicality_NoteNameInTonality(note, rootNote, scaleDegree)
+function Musicality_NoteNameInTonality(note, rootNote, scaleDegree, withOctave, forVF)
 {
-	note = note %12;
-	var noteLetterNote = Musicality_NoteLetterNotes[rootNote];
-	var tonalityScaleDegree = (Musicality_ScaleDegrees[noteLetterNote] + scaleDegree + 7) % 7;
-	var noteLetter = Musicality_MajorSequenceNotes[tonalityScaleDegree];
-	var noteLetterText = Musicality_NoteNames[noteLetter].Name1.slice(0,1);
-	switch ((note-noteLetter+12) %12)
+	var originalNote = note;
+	var noteWithinOctave = note % 12;
+	var tonalityScaleDegree = (Musicality_ScaleDegrees[Musicality_NoteLetterNotes[rootNote]] + scaleDegree + 7) % 7;
+	var noteLetterNote = Musicality_MajorSequenceNotes[tonalityScaleDegree];
+	var noteLetterText = Musicality_NoteNames[noteLetterNote].Name1.slice(0,1);
+	if (noteWithinOctave - noteLetterNote >=6) noteWithinOctave-=12;		// To manage to put C♭ in the right octave as though it were the C
+	var originalNoteLetterNote = originalNote+noteLetterNote-noteWithinOctave;
+	var octaveSuffix = !withOctave ? "" : forVF ? Math.floor(originalNoteLetterNote/12) : originalNoteLetterNote >= 60 ? "'" : "";
+	switch ((noteWithinOctave-noteLetterNote+12) %12)
 	{
 		case 0:
-			return noteLetterText;
+			return noteLetterText + octaveSuffix;
 		case 1:
-			return noteLetterText + "♯";
+			return noteLetterText + (forVF ? "#" : "♯") + octaveSuffix;
 		case 2:
-			return noteLetterText + "♯♯";
+			return noteLetterText + (forVF ? "##" : "♯♯") + octaveSuffix;
 		case 11:
-			return noteLetterText + "♭";
+			return noteLetterText + (forVF ? "b" : "♭") + octaveSuffix;
 		case 10:
-			return noteLetterText + "♭♭";
+			return noteLetterText + (forVF ? "bb" : "♭♭") + octaveSuffix;
 		default:
-			return (note-noteLetter) > 0 ?
-				noteLetterText + "+" + (note-noteLetter).toString() :
-				noteLetterText + "-" + (noteLetter-note).toString();
+			return withOctave ? noteLetterText + octaveSuffix : (noteWithinOctave-noteLetterNote) > 0 ?
+				noteLetterText + "+" + (noteWithinOctave-noteLetterNote).toString() :
+				noteLetterText + "-" + (noteLetterNote-noteWithinOctave).toString();
 	}
 }
 
@@ -454,10 +459,83 @@ function Musicality_NoteNamesInTonality(notes, rootNote, scaleDegrees)
 {
 	var noteNames = [];
 	for (let i = 0; i < notes.length; i++) {
-		var noteName = Musicality_NoteNameInTonality(notes[i], rootNote, scaleDegrees[i]) + 
-			(notes[i] >= 60 ? "'" : "");
+		var noteName = Musicality_NoteNameInTonality(notes[i], rootNote, scaleDegrees[i], true, false);
 		noteNames.push(noteName);
 	}
 	
 	return noteNames;
+}
+
+function Musicality_RenderNotesAsStave(notes, rootNote, scaleDegrees, divName)
+{
+	var noteNames = [];
+	for (let i = 0; i < notes.length; i++) {
+		var noteName = Musicality_NoteNameInTonality(notes[i], rootNote, scaleDegrees[i], true, true) + "/q";
+		noteNames.push(noteName);
+	}
+	
+	var notesString = noteNames.join(", ");
+	
+	// Code to render a notes encoding with no bar lines. taken from https://jsfiddle.net/squidbot/gs4v6k6d/1344/
+
+	const beatDuration = 4;
+
+	const VF = Vex.Flow;
+
+	var div = document.getElementById(divName);
+	
+	while (div.hasChildNodes()) {
+		div.removeChild(div.lastChild);
+	}
+
+	var renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+
+	var factory = new Vex.Flow.Factory({renderer: {elementId: divName}});
+
+	renderer.resize(div.clientWidth, 200);
+	var context = renderer.getContext();
+	context.setFont("Arial", 10, "");
+
+	var staff = new VF.Stave(10, 0, div.clientWidth-20);
+	staff.addClef('treble');
+	staff.setContext(context).draw();
+
+	var score = factory.EasyScore();
+	var parsedNotes = score.notes(notesString);
+
+	const durationMap = {
+		'q': '4',
+		'h': '2',
+		'w': '1'
+	}
+
+	const durationFractionMap = {
+		'1': 1,
+		'2': 1/2,
+		'4': 1/4,
+		'8': 1/8,
+		'16': 1/16,
+		'32' : 1/32,
+		'64' : 1/64
+	}
+
+	var beatAccumulator = 0;
+
+	for(const staveNote of parsedNotes)
+	{
+		var durationStr = staveNote.duration;
+		if(durationMap.hasOwnProperty(durationStr))
+		{
+			durationStr = durationMap[durationStr];
+		}
+		beatAccumulator += durationFractionMap[durationStr];
+	}
+
+	var totalBeats = beatAccumulator / (1 / beatDuration);
+
+	var voice = new VF.Voice({num_beats: totalBeats, beat_value: beatDuration});
+	voice.addTickables(parsedNotes);
+
+	var formatter = new VF.Formatter().joinVoices([voice]).format([voice], div.clientWidth-70)
+	voice.draw(context, staff);
 }

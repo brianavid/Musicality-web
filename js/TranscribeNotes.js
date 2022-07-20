@@ -23,6 +23,7 @@ function onNew() {
 	document.querySelector('#buttonAgain').classList.remove("disabled");
 	document.querySelector('#buttonAnswer').classList.remove("disabled");
 	document.querySelector('#answerText').innerHTML  = "";
+	document.querySelector('#renderedStave').style.visibility  = 'hidden';
 	var length = document.querySelector('#seqLen').value;
 	var keyChoice = document.querySelector('#keyChoice').innerHTML;
 	var key = Musicality_NoteNames.findIndex(n => n.Name1 == keyChoice || n.Name2 == keyChoice)
@@ -47,6 +48,7 @@ function onAnswer() {
 	document.querySelector('#buttonNew').addEventListener('click', onNew);
 	document.querySelector('#buttonNew').classList.remove("disabled");
 	document.querySelector('#answerText').innerHTML  = Musicality_PlayAnswerNotes();
+	document.querySelector('#renderedStave').style.visibility  = 'visible';
 }
 
 function handleSpeedSelected(e) {
