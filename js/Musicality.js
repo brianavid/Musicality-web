@@ -76,9 +76,9 @@ function Musicality_Initialise() {
 		}});
 }
 
-function Musicality_PickRandomIntervalToRecognise() {
+function Musicality_PickRandomIntervalToRecognise(intervals) {
 	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
-	var interval = Math.floor(Math.random() * 12) + 1; // 1 .. 12
+	var interval = intervals[Math.floor(Math.random() * intervals.length)]
 	var startNote = Math.floor(Math.random() * (interval/2+12)) + 54 - Math.floor(interval/2);
 	var targetNote = startNote + interval;
 	Musicality_StartNotes = [[startNote, targetNote]];
