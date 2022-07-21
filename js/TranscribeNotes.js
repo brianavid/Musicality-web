@@ -8,11 +8,11 @@ window.onload = function () {
 	document.querySelectorAll('.mode').forEach(option => option.addEventListener('click',handleModeSelected));
 	document.querySelectorAll('.difficulty').forEach(option => option.addEventListener('click',handleDifficultySelected));
 	
-	document.querySelector('#seqLen').value = window.localStorage.getItem("length");
-	document.querySelector('#keyChoice').innerHTML = window.localStorage.getItem("keyChoice");
-	document.querySelector('#mode').innerHTML = window.localStorage.getItem("mode");
-	document.querySelector('#speed').innerHTML = window.localStorage.getItem("speed");
-	document.querySelector('#difficulty').innerHTML = window.localStorage.getItem("difficulty");
+	document.querySelector('#seqLen').value = parseInt(window.localStorage.getItem("seqLen") || '8');
+	document.querySelector('#keyChoice').innerHTML = window.localStorage.getItem("keyChoice") || 'C';
+	document.querySelector('#mode').innerHTML = window.localStorage.getItem("mode") || 'Major';
+	document.querySelector('#difficulty').innerHTML = window.localStorage.getItem("difficulty") || 'Sequential';
+	document.querySelector('#speed').innerHTML = window.localStorage.getItem("speed") || "Medium";
 };
 
 function onNew() {
@@ -33,7 +33,7 @@ function onNew() {
 	var instructions = Musicality_PlaySequenceToTranscribe(+length, key, mode, difficulty, speed);
 	document.querySelector('#instructions').innerHTML  = instructions;
 	
-	window.localStorage.setItem("length", length);
+	window.localStorage.setItem("seqLen", length);
 	window.localStorage.setItem("keyChoice", keyChoice);
 	window.localStorage.setItem("mode", mode);
 	window.localStorage.setItem("speed", speed);
