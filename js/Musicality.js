@@ -466,6 +466,13 @@ function Musicality_NoteNamesInTonality(notes, rootNote, scaleDegrees)
 	return noteNames;
 }
 
+function hasAccidental(n) {
+	for (var i = 0; i < n.modifiers.length; i++) {
+		if (n.modifiers[i].accidental !== undefined) return true;
+	}
+	return false;
+}
+
 function Musicality_RenderNotesAsStave(notes, rootNote, scaleDegrees, divName)
 {
 	var noteNames = [];
@@ -476,9 +483,7 @@ function Musicality_RenderNotesAsStave(notes, rootNote, scaleDegrees, divName)
 	
 	var notesString = noteNames.join(", ");
 	
-	// Code to render a notes encoding with no bar lines. taken from https://jsfiddle.net/squidbot/gs4v6k6d/1344/
-
-	const beatDuration = 4;
+	// Code to render a notes encoding with no bar lines. simplified from https://jsfiddle.net/squidbot/gs4v6k6d/1344/
 
 	const VF = Vex.Flow;
 
@@ -502,38 +507,19 @@ function Musicality_RenderNotesAsStave(notes, rootNote, scaleDegrees, divName)
 
 	var score = factory.EasyScore();
 	var parsedNotes = score.notes(notesString);
-
-	const durationMap = {
-		'q': '4',
-		'h': '2',
-		'w': '1'
-	}
-
-	const durationFractionMap = {
-		'1': 1,
-		'2': 1/2,
-		'4': 1/4,
-		'8': 1/8,
-		'16': 1/16,
-		'32' : 1/32,
-		'64' : 1/64
-	}
-
-	var beatAccumulator = 0;
-
-	for(const staveNote of parsedNotes)
-	{
-		var durationStr = staveNote.duration;
-		if(durationMap.hasOwnProperty(durationStr))
-		{
-			durationStr = durationMap[durationStr];
+	
+	for (var i = 0; i < parsedNotes.length; i++) {
+		if (!hasAccidental(parsedNotes[i])) {
+			for( var j = 0; j < i; j++) {
+				if (parsedNotes[i].minLine == parsedNotes[j].minLine && hasAccidental(parsedNotes[j])) {
+					parsedNotes[i].addModifier(new VF.Accidental("n"));
+					break;
+				}
+			}
 		}
-		beatAccumulator += durationFractionMap[durationStr];
 	}
 
-	var totalBeats = beatAccumulator / (1 / beatDuration);
-
-	var voice = new VF.Voice({num_beats: totalBeats, beat_value: beatDuration});
+	var voice = new VF.Voice({num_beats: parsedNotes.length, beat_value: 4});
 	voice.addTickables(parsedNotes);
 
 	var formatter = new VF.Formatter().joinVoices([voice]).format([voice], div.clientWidth-70)
