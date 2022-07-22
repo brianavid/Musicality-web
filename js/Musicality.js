@@ -433,7 +433,10 @@ function Musicality_NoteNameInTonality(note, rootNote, scaleDegree, withOctave, 
 	var tonalityScaleDegree = (Musicality_ScaleDegrees[Musicality_NoteLetterNotes[rootNote]] + scaleDegree + 7) % 7;
 	var noteLetterNote = Musicality_MajorSequenceNotes[tonalityScaleDegree];
 	var noteLetterText = Musicality_NoteNames[noteLetterNote].Name1.slice(0,1);
-	if (noteWithinOctave - noteLetterNote >=6) noteWithinOctave-=12;		// To manage to put C♭ in the right octave as though it were the C
+	if (noteWithinOctave - noteLetterNote >=6) 
+		noteWithinOctave-=12;		// To manage to put C♭ in the right octave as though it were the C (not B)
+	else if (noteWithinOctave - noteLetterNote <= -6)
+		noteWithinOctave+=12;		// To manage to put B♯ in the right octave as though it were the B (not C)
 	var originalNoteLetterNote = originalNote+noteLetterNote-noteWithinOctave;
 	var octaveSuffix = !withOctave ? "" : forVF ? Math.floor(originalNoteLetterNote/12) : originalNoteLetterNote >= 60 ? "'" : "";
 	switch ((noteWithinOctave-noteLetterNote+12) %12)
