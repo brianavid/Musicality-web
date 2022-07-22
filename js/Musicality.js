@@ -1,7 +1,7 @@
 var Musicality_IntervalName = ["note", "semitone", "whole tone", "minor 3rd", "major 3rd", "perfect 4th", "tritone", "perfect 5th", "minor 6th", "major 6th", "minor 7th", "major 7th", "octave"];
 var Musicality_ShortIntervalName = ["Unison", "Min 2nd", "Maj 2nd", "Min 3rd", "Maj 3rd", "Perf 4th", "TriTone", "Perf 5th", "Min 6th", "Maj 6th", "Min 7th", "Maj 7th", "Octave"];
 var Musicality_ScaleDegrees = [0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7];
-var Musicality_NoteLetterNotes = [0, 0, 2, 4, 4, 5, 5, 7, 7, 9, 11, 11]; // C C D E E F F G G A B B
+var Musicality_NoteLetterNotes = [0, 0, 2, 4, 4, 5, 5, 7, 9, 9, 11, 11]; // C C D E E F F G A A B B
 var Musicality_MajorSequenceNotes = [0, 2, 4, 5, 7, 9, 11, 12]; // C D E F G A B C
 var Musicality_NatMinorSequenceNotes = [0, 2, 3, 5, 7, 8, 10, 12]; // C D E♭ F G A♭ B♭ C
 var Musicality_HarmMinorSequenceNotes = [0, 2, 3, 5, 7, 8, 11, 12]; // C D E♭ F G A♭ B C
