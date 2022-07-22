@@ -10,7 +10,9 @@ window.onload = function () {
 	document.querySelector('#seqLen').value = parseInt(window.localStorage.getItem("seqLen") || '8');
 	document.querySelector('#keyChoice').innerHTML = window.localStorage.getItem("keyChoice") || 'C';
 	document.querySelector('#mode').innerHTML = window.localStorage.getItem("mode") || 'Major';
-	document.querySelector('#difficulty').innerHTML = window.localStorage.getItem("difficulty") || 'Sequential';
+	document.querySelector('#difficulty').innerHTML = window.localStorage.getItem("difficulty") || 'Stepwise';
+	if (document.querySelector('#difficulty').innerHTML == "Sequential")
+		document.querySelector('#difficulty').innerHTML = "Stepwise";
 };
 
 function onNew() {

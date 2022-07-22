@@ -258,7 +258,7 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 	var difficultyLevel = 0;
 
 	switch (difficulty) {
-		case "Sequential":
+		case "Stepwise":
 			difficultyLevel = 0;
 			break;
 		case "Triad Leaps":
