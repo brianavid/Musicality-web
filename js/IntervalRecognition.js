@@ -50,7 +50,8 @@ function onNew() {
 		if (document.querySelector('#recogniseChoice').innerHTML == "Mode and inversion of a chord") {
 			Musicality_PickRandomChordToRecognise();
 		} else {
-			Musicality_PickRandomIntervalToRecognise(intervals);
+			var inChord = document.querySelector('#recogniseChoice').innerHTML == "Interval in chord"
+			Musicality_PickRandomIntervalToRecognise(intervals, inChord);
 		}
 	}
 }

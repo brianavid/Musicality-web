@@ -76,12 +76,12 @@ function Musicality_Initialise() {
 		}});
 }
 
-function Musicality_PickRandomIntervalToRecognise(intervals) {
+function Musicality_PickRandomIntervalToRecognise(intervals, inChord) {
 	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
 	var interval = intervals[Math.floor(Math.random() * intervals.length)]
 	var startNote = Math.floor(Math.random() * (interval/2+12)) + 54 - Math.floor(interval/2);
 	var targetNote = startNote + interval;
-	Musicality_StartNotes = [[startNote, targetNote]];
+	Musicality_StartNotes = inChord ? [[startNote, targetNote]] : [startNote, targetNote];
 	Musicality_AnswerNotes = [startNote, targetNote];
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerText = 
