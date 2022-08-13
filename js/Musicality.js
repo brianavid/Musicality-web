@@ -580,7 +580,7 @@ function Musicality_RenderNotesAsStave(notes, rootNote, isMinor, scaleDegrees, d
 				}
 			
 				if (thisNoteSharp) prevailingSharps += noteLetter;
-				if (thisNoteSharp) prevailingFlats += noteLetter;
+				if (thisNoteFlat) prevailingFlats += noteLetter;
 				if (thisNoteDoubleSharp) prevailingDoubleSharps += noteLetter;
 				if (thisNoteDoubleFlat) prevailingDoubleFlats += noteLetter;
 			}
