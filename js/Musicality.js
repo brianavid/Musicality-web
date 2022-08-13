@@ -21,6 +21,16 @@ var Musicality_BorrowableScales = [
 		Musicality_MixolydianSequenceNotes,
 		Musicality_AeolianSequenceNotes,
 ];
+var Musicality_BorrowableScalesMajor = [
+		Musicality_IonianSequenceNotes,
+		Musicality_LydianSequenceNotes,
+		Musicality_MixolydianSequenceNotes,
+];
+var Musicality_BorrowableScalesMinor = [
+		Musicality_DorianSequenceNotes,
+		Musicality_PhrygianSequenceNotes,
+		Musicality_AeolianSequenceNotes,
+];
 var Musicality_TriadIntervalsAbove = [
 		{notes: [-0, -3, -7], type:"maj"},
 		{notes: [-0, -4, -7], type:"min"},
@@ -282,7 +292,14 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 		case "Random Leaps":
 			difficultyLevel = 3;
 			break;
-		case "Modal Borrowing":
+		case "Modal Borrow 1":
+			difficultyLevel = 3;
+			if (isMinor)
+				sequenceBorrowed = Musicality_BorrowableScalesMinor[Math.floor(Math.random() * Musicality_BorrowableScalesMinor.length)].map(n=> n+lowNote);
+			else
+				sequenceBorrowed = Musicality_BorrowableScalesMajor[Math.floor(Math.random() * Musicality_BorrowableScalesMajor.length)].map(n=> n+lowNote);
+			break;
+		case "Modal Borrow 2":
 			difficultyLevel = 3;
 			sequenceBorrowed = Musicality_BorrowableScales[Math.floor(Math.random() * Musicality_BorrowableScales.length)].map(n=> n+lowNote);
 			break;
