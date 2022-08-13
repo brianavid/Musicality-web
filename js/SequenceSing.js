@@ -2,6 +2,7 @@ window.onload = function () {
 	Musicality_Initialise()
 	
 	document.querySelector('#buttonNew').addEventListener('click', onNew);
+	document.getElementById('useKeySig').addEventListener('change', displayStave);
 
 	document.querySelectorAll('.keyChoice').forEach(option => option.addEventListener('click',handleKeyChoiceSelected));
 	document.querySelectorAll('.mode').forEach(option => option.addEventListener('click',handleModeSelected));
@@ -27,13 +28,26 @@ function onNew() {
 	var key = Musicality_NoteNames.findIndex(n => n.Name1 == keyChoice || n.Name2 == keyChoice)
 	var mode = document.querySelector('#mode').innerHTML;
 	var difficulty = document.querySelector('#difficulty').innerHTML;
-	var instructions = Musicality_ShowSequenceToSing(+length, key, mode, difficulty, document.getElementById("useKeySig").checked);
+	var instructions = Musicality_ShowSequenceToSing(+length, key, mode, difficulty);
 	document.querySelector('#instructions').innerHTML  = instructions;
+	displayStave();
 	
 	window.localStorage.setItem("seqLen", length);
 	window.localStorage.setItem("keyChoice", keyChoice);
 	window.localStorage.setItem("mode", mode);
 	window.localStorage.setItem("difficulty", difficulty);
+}
+
+function displayStave() {
+	var renderedStaveWithoutKeySig = document.getElementById('renderedStaveWithoutKeySig');
+	var renderedStaveWithKeySig = document.getElementById('renderedStaveWithKeySig');
+	if (document.getElementById("useKeySig").checked) {
+		renderedStaveWithoutKeySig.style.display = 'none';
+		renderedStaveWithKeySig.style.display = 'block';
+	} else {
+		renderedStaveWithoutKeySig.style.display = 'block';
+		renderedStaveWithKeySig.style.display = 'none';
+	}
 	window.localStorage.setItem("useKeySig", document.getElementById("useKeySig").checked.toString());
 }
 

@@ -169,7 +169,7 @@ function Musicality_PickIntervalToSing(singChoice, intervals) {
 	}
 }
 
-function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, speed, useKeySig) {
+function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, speed) {
 	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
 	switch (speed) {
 		case "Fast":
@@ -187,7 +187,8 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, spee
 	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
 	var [notes, scaleDegrees, isMinor] = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length);
 	var noteNames = Musicality_NoteNamesInTonality(notes, key, scaleDegrees);
-	Musicality_RenderNotesAsStave(notes, key, isMinor, scaleDegrees, "renderedStave", useKeySig);
+	Musicality_RenderNotesAsStave(notes, key, isMinor, scaleDegrees, "renderedStaveWithoutKeySig", false);
+	Musicality_RenderNotesAsStave(notes, key, isMinor, scaleDegrees, "renderedStaveWithKeySig", true);
 	Musicality_StartNotes = [[lowNote, lowNote+12], []].concat(notes);
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerNotes = [];
@@ -195,14 +196,15 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, spee
 	return "Write down this sequence (after an initial " + keyNoteName + ")";
 }
 
-function Musicality_ShowSequenceToSing(length, key, mode, difficulty, useKeySig) {
+function Musicality_ShowSequenceToSing(length, key, mode, difficulty) {
 	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
 	var lowNote = 48 + key;
 	var displayNotesUsingFlats = (mode == "Major" ? [3, 5, 8, 10] : [0, 2, 3, 5, 7, 8, 10]).includes(key);
 	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
 	var [notes, scaleDegrees, isMinor] = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length);
 	var noteNames = Musicality_NoteNamesInTonality(notes, key, scaleDegrees);
-	Musicality_RenderNotesAsStave(notes, key, isMinor, scaleDegrees, "renderedStave", useKeySig);
+	Musicality_RenderNotesAsStave(notes, key, isMinor, scaleDegrees, "renderedStaveWithoutKeySig", false);
+	Musicality_RenderNotesAsStave(notes, key, isMinor, scaleDegrees, "renderedStaveWithKeySig", true);
 	Musicality_StartNotes = [lowNote];
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerNotes = notes;
@@ -534,14 +536,14 @@ function Musicality_RenderNotesAsStave(notes, rootNote, isMinor, scaleDegrees, d
 
 	var factory = new Vex.Flow.Factory({renderer: {elementId: divName}});
 
-	renderer.resize(div.clientWidth, 200);
+	renderer.resize(div.parentNode.clientWidth, 200);
 	var context = renderer.getContext();
 	context.setFont("Arial", 10, "");
 
 	var score = factory.EasyScore();
 	var parsedNotes = score.notes(notesString);
 	
-	var staff = new VF.Stave(10, 0, div.clientWidth-20);
+	var staff = new VF.Stave(10, 0, div.parentNode.clientWidth-20);
 	staff.addClef('treble');
 	
 	if (useKeySig) {
@@ -619,6 +621,6 @@ function Musicality_RenderNotesAsStave(notes, rootNote, isMinor, scaleDegrees, d
 	var voice = new VF.Voice({num_beats: parsedNotes.length, beat_value: 4});
 	voice.addTickables(parsedNotes);
 
-	var formatter = new VF.Formatter().joinVoices([voice]).format([voice], div.clientWidth - staff.start_x - 25)
+	var formatter = new VF.Formatter().joinVoices([voice]).format([voice], div.parentNode.clientWidth - staff.start_x - 25)
 	voice.draw(context, staff);
 }
