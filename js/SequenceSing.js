@@ -11,15 +11,16 @@ window.onload = function () {
 	document.querySelector('#keyChoice').innerHTML = window.localStorage.getItem("keyChoice") || 'C';
 	document.querySelector('#mode').innerHTML = window.localStorage.getItem("mode") || 'Major';
 	document.querySelector('#difficulty').innerHTML = window.localStorage.getItem("difficulty") || 'Stepwise';
+	document.getElementById("useKeySig").checked = window.localStorage.getItem("useKeySig") == "true";
 	if (document.querySelector('#difficulty').innerHTML == "Sequential")
 		document.querySelector('#difficulty').innerHTML = "Stepwise";
 };
 
 function onNew() {
-	document.querySelector('#buttonNew').removeEventListener('click', onNew);
+	//document.querySelector('#buttonNew').removeEventListener('click', onNew);
 	document.querySelector('#buttonAgain').addEventListener('click', onRepeat);
 	document.querySelector('#buttonAnswer').addEventListener('click', onAnswer);
-	document.querySelector('#buttonNew').classList.add("disabled");
+	//document.querySelector('#buttonNew').classList.add("disabled");
 	document.querySelector('#buttonAgain').classList.remove("disabled");
 	document.querySelector('#buttonAnswer').classList.remove("disabled");
 	document.querySelector('#answerText').innerHTML  = "";
@@ -28,13 +29,14 @@ function onNew() {
 	var key = Musicality_NoteNames.findIndex(n => n.Name1 == keyChoice || n.Name2 == keyChoice)
 	var mode = document.querySelector('#mode').innerHTML;
 	var difficulty = document.querySelector('#difficulty').innerHTML;
-	var instructions = Musicality_ShowSequenceToSing(+length, key, mode, difficulty);
+	var instructions = Musicality_ShowSequenceToSing(+length, key, mode, difficulty, document.getElementById("useKeySig").checked);
 	document.querySelector('#instructions').innerHTML  = instructions;
 	
 	window.localStorage.setItem("seqLen", length);
 	window.localStorage.setItem("keyChoice", keyChoice);
 	window.localStorage.setItem("mode", mode);
 	window.localStorage.setItem("difficulty", difficulty);
+	window.localStorage.setItem("useKeySig", document.getElementById("useKeySig").checked.toString());
 }
 
 function onRepeat() {
@@ -42,8 +44,8 @@ function onRepeat() {
 }
 
 function onAnswer() {
-	document.querySelector('#buttonNew').addEventListener('click', onNew);
-	document.querySelector('#buttonNew').classList.remove("disabled");
+	//document.querySelector('#buttonNew').addEventListener('click', onNew);
+	//document.querySelector('#buttonNew').classList.remove("disabled");
 	document.querySelector('#answerText').innerHTML  = Musicality_PlayAnswerNotes();
 }
 

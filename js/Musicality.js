@@ -159,7 +159,7 @@ function Musicality_PickIntervalToSing(singChoice, intervals) {
 	}
 }
 
-function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, speed) {
+function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, speed, useKeySig) {
 	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
 	switch (speed) {
 		case "Fast":
@@ -175,9 +175,9 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, spee
 	var lowNote = 48 + key;
 	var displayNotesUsingFlats = (mode == "Major" ? [3, 5, 8, 10] : [0, 2, 3, 5, 7, 8, 10]).includes(key);
 	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
-	var [notes, scaleDegrees] = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length);
+	var [notes, scaleDegrees, isMinor] = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length);
 	var noteNames = Musicality_NoteNamesInTonality(notes, key, scaleDegrees);
-	Musicality_RenderNotesAsStave(notes, key, scaleDegrees, "renderedStave");
+	Musicality_RenderNotesAsStave(notes, key, isMinor, scaleDegrees, "renderedStave", useKeySig);
 	Musicality_StartNotes = [[lowNote, lowNote+12], []].concat(notes);
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerNotes = [];
@@ -185,14 +185,14 @@ function Musicality_PlaySequenceToTranscribe(length, key, mode, difficulty, spee
 	return "Write down this sequence (after an initial " + keyNoteName + ")";
 }
 
-function Musicality_ShowSequenceToSing(length, key, mode, difficulty) {
+function Musicality_ShowSequenceToSing(length, key, mode, difficulty, useKeySig) {
 	Musicality_NotePlayDelay = Musicality_NotePlayDelayDefault;
 	var lowNote = 48 + key;
 	var displayNotesUsingFlats = (mode == "Major" ? [3, 5, 8, 10] : [0, 2, 3, 5, 7, 8, 10]).includes(key);
 	var keyNoteName = displayNotesUsingFlats ? Musicality_NoteNames[key % 12].Name2 : Musicality_NoteNames[key % 12].Name1;
-	var [notes, scaleDegrees] = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length);
+	var [notes, scaleDegrees, isMinor] = Musicality_MakeNoteSequence(lowNote, mode, difficulty, length);
 	var noteNames = Musicality_NoteNamesInTonality(notes, key, scaleDegrees);
-	Musicality_RenderNotesAsStave(notes, key, scaleDegrees, "renderedStave");
+	Musicality_RenderNotesAsStave(notes, key, isMinor, scaleDegrees, "renderedStave", useKeySig);
 	Musicality_StartNotes = [lowNote];
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerNotes = notes;
@@ -205,50 +205,62 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 	var sequenceNotesUp = null;
 	var sequenceNotesDown = null;
 	var sequenceBorrowed = null;
+	var isMinor = false;
 	switch (mode) {
 		case "Major":
 			sequenceNotesUp = Musicality_MajorSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
+			isMinor = false;
 			break;
 		case "Natural Minor":
 			sequenceNotesUp = Musicality_NatMinorSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
+			isMinor = true;
 			break;
-		case "Harmonic Minor":
+		case "Harmonic true":
 			sequenceNotesUp = Musicality_HarmMinorSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
+			isMinor = true;
 			break;
 		case "Melodic Minor":
 			sequenceNotesUp = Musicality_MelMinorSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = Musicality_NatMinorSequenceNotes.map(n=> n+lowNote);
+			isMinor = true;
 			break;
 		case "Ionian":
 			sequenceNotesUp = Musicality_IonianSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
+			isMinor = false;
 			break;
 		case "Dorian":
 			sequenceNotesUp = Musicality_DorianSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
+			isMinor = true;
 			break;
 		case "Phrygian":
 			sequenceNotesUp = Musicality_PhrygianSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
+			isMinor = true;
 			break;
 		case "Lydian":
 			sequenceNotesUp = Musicality_LydianSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
+			isMinor = false;
 			break;
 		case "Mixolydian":
 			sequenceNotesUp = Musicality_MixolydianSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
+			isMinor = false;
 			break;
 		case "Aeolian":
 			sequenceNotesUp = Musicality_AeolianSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
+			isMinor = true;
 			break;
 		case "Locrian":
 			sequenceNotesUp = Musicality_LocrianSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
+			isMinor = true;
 			break;
 	}
 	var notes = [];
@@ -339,6 +351,8 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 
 		if (sequenceBorrowed != null && notes.length * 2 >= length && notes.length * 4 < length*3) {
 			nextNote = sequenceBorrowed[nextScaleDegree];
+		} else if (nextScaleDegree == lastScaleDegree && notes.length > 0) {
+			nextNote = notes[notes.length-1];	//	for the melodic minor, don't necessarily go up for repeated notes
 		} else {
 			nextNote = nextScaleDegree >= lastScaleDegree ? 
 				sequenceNotesUp[nextScaleDegree] : sequenceNotesDown[nextScaleDegree];
@@ -349,7 +363,7 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 		lastScaleDegree = nextScaleDegree;
 	}
 	
-	return [notes, scaleDegrees];	
+	return [notes, scaleDegrees, isMinor];	
 }
 
 function MakeChordName(chordRootNote, chordType) {
@@ -469,14 +483,14 @@ function Musicality_NoteNamesInTonality(notes, rootNote, scaleDegrees)
 	return noteNames;
 }
 
-function hasAccidental(n) {
+function getAccidental(n) {
 	for (var i = 0; i < n.modifiers.length; i++) {
-		if (n.modifiers[i].accidental !== undefined) return true;
+		if ( n.modifiers[i].accidental !== undefined) return n.modifiers[i].accidental;
 	}
-	return false;
+	return null;
 }
 
-function Musicality_RenderNotesAsStave(notes, rootNote, scaleDegrees, divName)
+function Musicality_RenderNotesAsStave(notes, rootNote, isMinor, scaleDegrees, divName, useKeySig)
 {
 	var noteNames = [];
 	for (let i = 0; i < notes.length; i++) {
@@ -504,27 +518,87 @@ function Musicality_RenderNotesAsStave(notes, rootNote, scaleDegrees, divName)
 	var context = renderer.getContext();
 	context.setFont("Arial", 10, "");
 
-	var staff = new VF.Stave(10, 0, div.clientWidth-20);
-	staff.addClef('treble');
-	staff.setContext(context).draw();
-
 	var score = factory.EasyScore();
 	var parsedNotes = score.notes(notesString);
 	
-	for (var i = 0; i < parsedNotes.length; i++) {
-		if (!hasAccidental(parsedNotes[i])) {
-			for( var j = 0; j < i; j++) {
-				if (parsedNotes[i].minLine == parsedNotes[j].minLine && hasAccidental(parsedNotes[j])) {
-					parsedNotes[i].addModifier(new VF.Accidental("n"));
-					break;
+	var staff = new VF.Stave(10, 0, div.clientWidth-20);
+	staff.addClef('treble');
+	
+	if (useKeySig) {
+		var keySigKey = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"][rootNote] + (isMinor ? "m" : "");
+		const AllSharps = "FCGDAEB";
+		const AllFlats = "BEADGCF";
+		var majorKeySigAccidentals = [0, 7, 2, -3, 4, -1, 6, 1, -4, 3, -2, 5]; 
+		var minorKeySigAccidentals = majorKeySigAccidentals.map(n => n-3);
+		var keyAccidentalNumber = (isMinor ? minorKeySigAccidentals : majorKeySigAccidentals)[rootNote];
+		var prevailingSharps = keyAccidentalNumber > 0 ? AllSharps.slice(0, keyAccidentalNumber) : "";
+		var prevailingFlats = keyAccidentalNumber < 0 ? AllFlats.slice(0, -keyAccidentalNumber) : "";
+		var prevailingDoubleSharps = "";
+		var prevailingDoubleFlats = "";
+		
+		var keySig = new VF.KeySignature(keySigKey);
+		keySig.addToStave(staff);
+		keySig.format();
+
+		for (var i = 0; i < parsedNotes.length; i++) {
+			var note = parsedNotes[i];
+			var noteLetter = note.keys[0][0];
+			var thisAccidental = getAccidental(note);
+			var prevailingSharp = prevailingSharps.includes(noteLetter);
+			var prevailingFlat = prevailingFlats.includes(noteLetter);
+			var prevailingDoubleSharp = prevailingDoubleSharps.includes(noteLetter);
+			var prevailingDoubleFlat = prevailingDoubleFlats.includes(noteLetter);
+			
+			if (!thisAccidental && (prevailingSharp || prevailingFlat || prevailingDoubleSharp || prevailingDoubleFlat)) {
+				//	No accidental on the note, but one is prevailing from the key signature or previous accidental
+				note.addModifier(new VF.Accidental("n"));	// Natural
+			}
+			
+			prevailingSharps = prevailingSharps.replace(noteLetter, "");
+			prevailingFlats = prevailingFlats.replace(noteLetter, "");
+			prevailingDoubleSharps = prevailingDoubleSharps.replace(noteLetter, "");
+			prevailingDoubleFlats = prevailingDoubleFlats.replace(noteLetter, "");
+			
+			if (thisAccidental)
+			{
+				var thisNoteSharp = thisAccidental.code == "accidentalSharp";
+				var thisNoteFlat = thisAccidental.code == "accidentalFlat";
+				var thisNoteDoubleSharp = thisAccidental.code == "accidentalDoubleSharp";
+				var thisNoteDoubleFlat = thisAccidental.code == "accidentalDoubleFlat";
+				
+				if ((thisNoteSharp && prevailingSharp) || (thisNoteFlat && prevailingFlat) ||
+					(thisNoteDoubleSharp && prevailingDoubleSharp) || (thisNoteDoubleFlat && prevailingDoubleFlat)) {
+					//	Remove a note accidental which is covered by the prevailing key signature or previous accidental
+					note.getModifiers().forEach((modifier, index) => {
+						if (modifier.accidental == thisAccidental) {
+							note.getModifiers().splice(index, 1);
+						}
+					});
+				}
+			
+				if (thisNoteSharp) prevailingSharps += noteLetter;
+				if (thisNoteSharp) prevailingFlats += noteLetter;
+				if (thisNoteDoubleSharp) prevailingDoubleSharps += noteLetter;
+				if (thisNoteDoubleFlat) prevailingDoubleFlats += noteLetter;
+			}
+		}
+	} else {
+		for (var i = 0; i < parsedNotes.length; i++) {
+			if (!getAccidental(parsedNotes[i])) {
+				for( var j = 0; j < i; j++) {
+					if (parsedNotes[i].minLine == parsedNotes[j].minLine && getAccidental(parsedNotes[j])) {
+						parsedNotes[i].addModifier(new VF.Accidental("n"));
+						break;
+					}
 				}
 			}
 		}
 	}
 
+	staff.setContext(context).draw();
 	var voice = new VF.Voice({num_beats: parsedNotes.length, beat_value: 4});
 	voice.addTickables(parsedNotes);
 
-	var formatter = new VF.Formatter().joinVoices([voice]).format([voice], div.clientWidth-70)
+	var formatter = new VF.Formatter().joinVoices([voice]).format([voice], div.clientWidth - staff.start_x - 25)
 	voice.draw(context, staff);
 }

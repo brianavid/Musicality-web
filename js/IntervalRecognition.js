@@ -40,10 +40,10 @@ function onNew() {
 	if (intervals.length == 0) {
 		document.querySelector('#instructions').innerHTML  = "First select at least one interval";
 	} else {
-		document.querySelector('#buttonNew').removeEventListener('click', onNew);
+		//document.querySelector('#buttonNew').removeEventListener('click', onNew);
 		document.querySelector('#buttonAgain').addEventListener('click', onRepeat);
 		document.querySelector('#buttonAnswer').addEventListener('click', onAnswer);
-		document.querySelector('#buttonNew').classList.add("disabled");
+		//document.querySelector('#buttonNew').classList.add("disabled");
 		document.querySelector('#buttonAgain').classList.remove("disabled");
 		document.querySelector('#buttonAnswer').classList.remove("disabled");
 		document.querySelector('#answerText').innerHTML  = "";
@@ -60,8 +60,8 @@ function onRepeat() {
 }
 
 function onAnswer() {
-	document.querySelector('#buttonNew').addEventListener('click', onNew);
-	document.querySelector('#buttonNew').classList.remove("disabled");
+	//document.querySelector('#buttonNew').addEventListener('click', onNew);
+	//document.querySelector('#buttonNew').classList.remove("disabled");
 	document.querySelector('#answerText').innerHTML  = Musicality_PlayAnswerNotes();
 }
 function handleRecogniseChoiceSelected(e) {
