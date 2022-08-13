@@ -227,7 +227,7 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 			sequenceNotesDown = sequenceNotesUp;
 			isMinor = true;
 			break;
-		case "Harmonic true":
+		case "Harmonic Minor":
 			sequenceNotesUp = Musicality_HarmMinorSequenceNotes.map(n=> n+lowNote);
 			sequenceNotesDown = sequenceNotesUp;
 			isMinor = true;
