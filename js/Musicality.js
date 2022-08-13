@@ -276,11 +276,14 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 		case "Triad Leaps":
 			difficultyLevel = 1;
 			break;
-		case "Random Leaps":
+		case "Moderate Leaps":
 			difficultyLevel = 2;
 			break;
+		case "Random Leaps":
+			difficultyLevel = 3;
+			break;
 		case "Modal Borrowing":
-			difficultyLevel = 2;
+			difficultyLevel = 3;
 			sequenceBorrowed = Musicality_BorrowableScales[Math.floor(Math.random() * Musicality_BorrowableScales.length)].map(n=> n+lowNote);
 			break;
 	}
@@ -295,8 +298,8 @@ function Musicality_MakeNoteSequence(lowNote, mode, difficulty, length) {
 			if (lastScaleDegree <= 0) increment = 1;
 			if (lastScaleDegree >= sequenceNotesUp.length-1) increment = -1;
 			if (difficultyLevel != 0 && Math.random() < 0.3) {
-				if (difficultyLevel >= 2) {
-					switch (Math.floor(Math.random() * 10))
+				if (difficultyLevel >= 2 && Math.random() < 0.6) {
+					switch (Math.floor(Math.random() * (difficultyLevel >= 3 ? 10 : 8)))
 					{
 						case 0:
 						case 1:
