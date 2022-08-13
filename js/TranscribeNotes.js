@@ -14,8 +14,6 @@ window.onload = function () {
 	document.querySelector('#difficulty').innerHTML = window.localStorage.getItem("difficulty") || 'Stepwise';
 	document.querySelector('#speed').innerHTML = window.localStorage.getItem("speed") || "Medium";
 	document.getElementById("useKeySig").checked = window.localStorage.getItem("useKeySig") == "true";
-	if (document.querySelector('#difficulty').innerHTML == "Sequential")
-		document.querySelector('#difficulty').innerHTML = "Stepwise";
 };
 
 function onNew() {
