@@ -91,7 +91,7 @@ function Musicality_PickRandomIntervalToRecognise(intervals, inChord) {
 	var interval = intervals[Math.floor(Math.random() * intervals.length)]
 	var startNote = Math.floor(Math.random() * (interval/2+12)) + 54 - Math.floor(interval/2);
 	var targetNote = startNote + interval;
-	Musicality_StartNotes = inChord ? [[startNote, targetNote]] : [startNote, targetNote];
+	Musicality_StartNotes = inChord ? [[startNote, targetNote]] : Math.random() >= 0.5 ? [startNote, targetNote] : [targetNote, startNote];
 	Musicality_AnswerNotes = [startNote, targetNote];
 	Musicality_PlayNotes(Musicality_StartNotes);
 	Musicality_AnswerText = 
